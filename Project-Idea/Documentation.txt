@@ -1,0 +1,37 @@
+HOTEL BOOKING APP
+
+USER TYPES -- (Admin, Customer)
+
+
+------------- CUSTOMERS --------------
+
+1) Customer can Visit the Hotel Booking Site
+2) Login and Register in the Website
+3) Search for the hotels by hotel name
+4) Search Hotels by the Place they visiting
+5) Check Hotels by Room Type , Occupancy, Room Availability and Nearby distance
+6) check the available rooms on the particular date
+6) Check the Hotel Reviews and ratings 
+7) Check the hotel Address and Photos of the hotel
+8) Can check the amenities of the Hotel and rooms
+9) Can Booking the rooms in the particular hotel for the particular dates
+10) Can able to get coins on all bookings based on the total amount
+11) Customer can avail the coins on the next booking and get discounts
+12) Can avail discount (For new User)
+13) Can Avail discount (For booking 30 days before, 5% off for booking 3 rooms or 5 guest rooms, 
+	10% discount for booking 5 rooms or 10 guest rooms)
+14) Can able te cancel the bookings
+15) Request admin to Reactivate the account if the account is restricted from booking due to more cancels
+16) Can pay the Hotel fee in online (Planning to do a dummy payment page)
+17) The customer can also pay the total fee at the hotel itself.
+18) Customer can give feedback and ratings to the hotels they booked already.
+
+
+
+---------------- ADMIN ----------------------
+1) Can manage all the hotels
+2) Can Activate the Customer if the customer is requested
+3) Can Upload new hotels 
+4) can able to upload room images
+5) Can check and review all bookings
+6) Can monitor Customer Reviews and Ratings

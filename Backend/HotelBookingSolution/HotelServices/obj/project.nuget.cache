@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "r2TuFyfI8Tin/sHiBbSujO7UD3xy84+vLahmQeTnR4P1H7D6i8qDXpFay7L9cGD2r4xe/WLlpXchJDRo75GWrw==",
+  "dgSpecHash": "SFxtXRC5RMpBttmusfQnyXJy1aipbshvJi6+uOO1b4xZn0paUJEiWkjuxYB1iiNE5jEf4HWKlrrnOjTM8N3f/Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\VC\\source\\repos\\Capstone (MicroServices)\\HotelBookingSolution\\HotelServices\\HotelServices.csproj",
+  "projectFilePath": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\HotelServices\\HotelServices.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VC\\.nuget\\packages\\azure.core\\1.41.0\\azure.core.1.41.0.nupkg.sha512",
     "C:\\Users\\VC\\.nuget\\packages\\azure.storage.blobs\\12.21.0\\azure.storage.blobs.12.21.0.nupkg.sha512",

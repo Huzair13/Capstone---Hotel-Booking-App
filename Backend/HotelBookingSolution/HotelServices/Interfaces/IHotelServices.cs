@@ -15,6 +15,9 @@ namespace HotelServices.Interfaces
 
         public Task<List<RoomDTO>> GetAvailableRoomsAsync(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests);
 
+        public Task<List<RoomDTO>> GetAllRoomsAsync();
+
+        public Task<List<RoomDTO>> GetAvailableRoomsByDateAsync(DateTime checkInDate, DateTime checkOutDate);
 
 
     }

@@ -7,6 +7,7 @@
         public int RoomType { get; set; }
         public int RoomFloor { get; set; }
         public int AllowedNumOfGuests { get; set; }
+        public bool IsDeleted { get; set; }=false;
         public decimal Rent { get; set; }
     }
 }

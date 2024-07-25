@@ -93,7 +93,6 @@ namespace HotelServices
 
             #region repositories
             builder.Services.AddScoped<IRepository<int, Room>, RoomRepository>();
-            builder.Services.AddScoped<IRepository<int, HotelRoom>, HotelRoomRepository>();
             builder.Services.AddScoped<IRepository<int, Hotel>, HotelRepository>();
             #endregion
 

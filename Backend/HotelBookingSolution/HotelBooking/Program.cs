@@ -23,7 +23,7 @@ namespace HotelBooking
             #region contexts
             builder.Services.AddDbContext<HotelBookingDbContext>(
                 options => options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"))
-                );
+            );
             #endregion
 
             #region repositories
@@ -37,6 +37,15 @@ namespace HotelBooking
             builder.Services.AddScoped<IUserServices, UserServices>();
             #endregion
 
+            // Configure CORS
+            builder.Services.AddCors(opts =>
+            {
+                opts.AddPolicy("MyCors", options =>
+                {
+                    options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -47,9 +56,9 @@ namespace HotelBooking
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("MyCors");
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

@@ -1,4 +1,5 @@
-﻿using BookingServices.Interfaces;
+﻿using BookingServices.Exceptions;
+using BookingServices.Interfaces;
 using BookingServices.Models;
 using BookingServices.Models.DTOs;
 using HotelBooking.Interfaces;
@@ -25,22 +26,31 @@ namespace BookingServices.Services
 
         public async Task<List<int>> GetBookedRoomNumbersAsync(DateTime checkInDate, DateTime checkOutDate)
         {
+            List<int> bookedRoomNumbers = new List<int>();
+
             try
             {
-                var bookings = await _bookingRepo.Get();
-                var bookedRoomNumbers = bookings
-                    .Where(b => (b.CheckInDate < checkOutDate) && (b.CheckOutDate > checkInDate))
-                    .Select(b => b.RoomNumber)
-                    .Distinct()
-                    .ToList();
+                var bookings = await _bookingRepo.Get(); // Assumes Get() returns all bookings including details
 
-                return bookedRoomNumbers;
+                bookedRoomNumbers = bookings
+                    .Where(b => b.CheckInDate < checkOutDate && b.CheckOutDate > checkInDate) // Filter bookings by date range
+                    .SelectMany(b => b.BookingDetails) // Flatten BookingDetails collection
+                    .Select(d => d.RoomNumber) // Extract RoomNumber
+                    .Distinct() // Ensure room numbers are unique
+                    .ToList(); // Convert to list
+            }
+            catch (NoSuchBookingException ex)
+            {
+                // Log the exception if needed
+                _logger.LogWarning(ex, "No bookings found");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while retrieving booked rooms");
                 throw;
             }
+
+            return bookedRoomNumbers;
         }
 
 
@@ -48,10 +58,9 @@ namespace BookingServices.Services
         {
             try
             {
-                // Retrieve the token from the incoming HTTP request
                 var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-                // Check if HotelID exists in Hotel Service
+                // Check if HotelID exists
                 var hotelClient = _httpClientFactory.CreateClient("HotelService");
                 hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var hotelResponse = await hotelClient.GetAsync($"api/GetHotelByID/{bookingDTO.HotelId}");
@@ -60,7 +69,7 @@ namespace BookingServices.Services
                     throw new Exception("Invalid Hotel ID");
                 }
 
-                // Check if UserID exists in UserAuth Service
+                // Check if UserID exists
                 var userClient = _httpClientFactory.CreateClient("UserAuthService");
                 userClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var userResponse = await userClient.GetAsync($"getuser/{bookingDTO.UserId}");
@@ -69,17 +78,16 @@ namespace BookingServices.Services
                     throw new Exception("Invalid User ID");
                 }
 
-                // Fetch available rooms for the specified date range and number of guests from Hotel Service
+                // Fetch available rooms
                 var roomClient = _httpClientFactory.CreateClient("HotelService");
                 roomClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var formattedCheckInDate = bookingDTO.CheckInDate.ToString("yyyy-MM-dd");
                 var formattedCheckOutDate = bookingDTO.CheckOutDate.ToString("yyyy-MM-dd");
-                var availableRoomsResponse = await roomClient.GetAsync($"api/GetAvailableHotelsRooms?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}&numberOfGuests={bookingDTO.NumberOfGuests}");
+                var availableRoomsResponse = await roomClient.GetAsync($"api/GetAvailableHotelsRoomsByDate?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}");
 
                 if (!availableRoomsResponse.IsSuccessStatusCode)
                 {
                     var errorMessage = await availableRoomsResponse.Content.ReadAsStringAsync();
-                    _logger.LogError($"Error fetching available rooms: {errorMessage}");
                     throw new Exception($"Failed to fetch available rooms. Status Code: {availableRoomsResponse.StatusCode}");
                 }
 
@@ -91,66 +99,103 @@ namespace BookingServices.Services
                     throw new Exception("No rooms available for the specified criteria");
                 }
 
-                _logger.LogInformation("Available rooms fetched: " + string.Join(", ", availableRooms.Select(r => $"{r.RoomNumber} (Hotel: {r.HotelId})")));
-
-                // Filter rooms by the hotel ID
                 var roomsInHotel = availableRooms.Where(r => r.HotelId == bookingDTO.HotelId).ToList();
-                _logger.LogInformation("Rooms in specified hotel: " + string.Join(", ", roomsInHotel.Select(r => $"{r.RoomNumber}")));
 
-                // Select a room
-                RoomDTO allocatedRoom = null;
-                if (bookingDTO.RoomNumber.HasValue)
+                if (bookingDTO.NumberOfRooms > 4)
                 {
-                    // Check if the specific room is available
-                    allocatedRoom = roomsInHotel.FirstOrDefault(r => r.RoomNumber == bookingDTO.RoomNumber);
-                    if (allocatedRoom == null)
-                    {
-                        throw new Exception("The specified room is not available");
-                    }
-                }
-                else
-                {
-                    // Allocate a random available room from the correct hotel
-                    allocatedRoom = roomsInHotel.FirstOrDefault();
-                    if (allocatedRoom == null)
-                    {
-                        throw new Exception("No available rooms found in the specified hotel");
-                    }
+                    throw new Exception("Cannot book more than 4 rooms at a time");
                 }
 
-                _logger.LogInformation($"Allocated room: {allocatedRoom.RoomNumber} (Hotel: {allocatedRoom.HotelId})");
+                if (bookingDTO.NumberOfGuests > bookingDTO.NumberOfRooms * 3)
+                {
+                    throw new Exception("The total number of guests exceeds the capacity of the requested number of rooms");
+                }
 
-                // Create the booking
-                Booking booking = new Booking
+                var allocatedRooms = new List<BookingDetail>();
+                var totalGuestsToAllocate = bookingDTO.NumberOfGuests;
+                var totalDays = (bookingDTO.CheckOutDate - bookingDTO.CheckInDate).Days;
+
+                for (int i = 0; i < bookingDTO.NumberOfRooms; i++)
+                {
+                    if (roomsInHotel.Count == 0)
+                    {
+                        throw new Exception("Not enough rooms available");
+                    }
+
+                    var room = roomsInHotel.First();
+                    roomsInHotel.RemoveAt(0);
+
+                    var guestsForThisRoom = Math.Min(totalGuestsToAllocate, 3);
+                    totalGuestsToAllocate -= guestsForThisRoom;
+
+                    var totalRentForRoom = room.Rent * totalDays;
+
+                    allocatedRooms.Add(new BookingDetail
+                    {
+                        RoomNumber = room.RoomNumber,
+                        Rent = totalRentForRoom,
+                        HotelId = room.HotelId
+                    });
+
+                    if (totalGuestsToAllocate <= 0)
+                        break;
+                }
+
+                // Ensure all requested rooms are allocated even if not all guests are distributed
+                while (allocatedRooms.Count < bookingDTO.NumberOfRooms && roomsInHotel.Count > 0)
+                {
+                    var room = roomsInHotel.First();
+                    roomsInHotel.RemoveAt(0);
+
+                    var totalRentForRoom = room.Rent * totalDays;
+
+                    allocatedRooms.Add(new BookingDetail
+                    {
+                        RoomNumber = room.RoomNumber,
+                        Rent = totalRentForRoom,
+                        HotelId = room.HotelId
+                    });
+                }
+
+                if (allocatedRooms.Count < bookingDTO.NumberOfRooms)
+                {
+                    throw new Exception("Could not allocate the requested number of rooms");
+                }
+
+                var totalAmount = allocatedRooms.Sum(detail => detail.Rent);
+
+                var booking = new Booking
                 {
                     HotelId = bookingDTO.HotelId,
                     UserId = bookingDTO.UserId,
-                    RoomNumber = allocatedRoom.RoomNumber,
                     CheckInDate = bookingDTO.CheckInDate,
                     CheckOutDate = bookingDTO.CheckOutDate,
                     NumberOfGuests = bookingDTO.NumberOfGuests,
-                    TotalAmount = bookingDTO.TotalPrice
+                    TotalAmount = totalAmount,
+                    BookingDetails = allocatedRooms // Associate the booking details
                 };
 
                 var result = await _bookingRepo.Add(booking);
+
                 return new BookingReturnDTO
                 {
-                    Id = result.Id,
-                    HotelId = result.HotelId,
-                    UserId = result.UserId,
-                    RoomNumber = result.RoomNumber,
-                    CheckInDate = result.CheckInDate,
-                    CheckOutDate = result.CheckOutDate,
-                    NumberOfGuests = result.NumberOfGuests,
-                    TotalPrice = result.TotalAmount
+                    BookingId = result.Id,
+                    HotelId = bookingDTO.HotelId,
+                    UserId = bookingDTO.UserId,
+                    CheckInDate = bookingDTO.CheckInDate,
+                    CheckOutDate = bookingDTO.CheckOutDate,
+                    NumberOfGuests = bookingDTO.NumberOfGuests,
+                    TotalPrice = totalAmount,
+                    RoomNumbers = allocatedRooms.Select(d => d.RoomNumber).ToList() // List all room numbers
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred at AddBooking service");
-                throw new Exception(ex.Message);
+                _logger.LogError(ex, "An error occurred while adding the booking");
+                throw;
             }
         }
+
 
         public async Task<List<BookingReturnDTO>> GetAllBookings()
         {
@@ -159,19 +204,20 @@ namespace BookingServices.Services
                 var bookings = await _bookingRepo.Get();
                 return bookings.Select(booking => new BookingReturnDTO
                 {
-                    Id = booking.Id,
+                    BookingId = booking.Id,
                     HotelId = booking.HotelId,
                     UserId = booking.UserId,
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
                     NumberOfGuests = booking.NumberOfGuests,
-                    TotalPrice = booking.TotalAmount
+                    TotalPrice = booking.TotalAmount,
+                    RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() // Populate RoomNumbers
                 }).ToList();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while retrieving all bookings");
-                throw new Exception(ex.Message);
+                throw;
             }
         }
 
@@ -184,23 +230,26 @@ namespace BookingServices.Services
                 {
                     throw new Exception("Booking not found");
                 }
+
                 return new BookingReturnDTO
                 {
-                    Id = booking.Id,
+                    BookingId = booking.Id,
                     HotelId = booking.HotelId,
                     UserId = booking.UserId,
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
                     NumberOfGuests = booking.NumberOfGuests,
-                    TotalPrice = booking.TotalAmount
+                    TotalPrice = booking.TotalAmount,
+                    RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() // Populate RoomNumbers
                 };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while retrieving the booking by ID");
-                throw new Exception(ex.Message);
+                throw;
             }
         }
+
 
         public async Task<BookingReturnDTO> GetBookingByUser(int userId)
         {
@@ -212,22 +261,26 @@ namespace BookingServices.Services
                 {
                     throw new Exception("Booking not found");
                 }
+
                 return new BookingReturnDTO
                 {
-                    Id = booking.Id,
+                    BookingId = booking.Id,
                     HotelId = booking.HotelId,
                     UserId = booking.UserId,
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
                     NumberOfGuests = booking.NumberOfGuests,
-                    TotalPrice = booking.TotalAmount
+                    TotalPrice = booking.TotalAmount,
+                    RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() // Populate RoomNumbers
                 };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while retrieving the booking by user");
-                throw new Exception(ex.Message);
+                throw;
             }
         }
+
+
     }
 }

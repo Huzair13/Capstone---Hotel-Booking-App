@@ -2,11 +2,14 @@
 using HotelBooking.Models;
 using Microsoft.AspNetCore.Mvc;
 using HotelBooking.Interfaces;
+using Microsoft.AspNetCore.Cors;
+using HotelBooking.Exceptions;
 
 namespace HotelBooking.Controllers
 {
     [Route("/")]
     [ApiController]
+    [EnableCors("MyCors")]
     public class UserController :ControllerBase
     {
         private readonly IUserLoginAndRegisterServices _userService;
@@ -34,11 +37,17 @@ namespace HotelBooking.Controllers
                 _logger.LogInformation("Login successful for user: {UserID}", userLoginDTO.UserId);
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch(UnauthorizedUserException ex)
             {
                 _logger.LogError(ex, "Login failed for user: {UserID}", userLoginDTO.UserId);
                 return Unauthorized(new ErrorModel(401, ex.Message));
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while Logging in");
+                return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. + {ex.Message}"));
+            }
+
         }
 
         [HttpPost("Register")]

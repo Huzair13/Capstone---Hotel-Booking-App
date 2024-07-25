@@ -16,8 +16,6 @@ namespace HotelServices.Models
         public string Description { get; set; }
         public bool IsDeleted { get; set; } = false;
         public ICollection<HotelImage> HotelImages { get; set; }
-
-        public ICollection<HotelRoom> HotelRooms { get; set; }
-
+        public ICollection<Room> Rooms { get; set; } = new List<Room>();
     }
 }

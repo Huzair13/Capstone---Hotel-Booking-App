@@ -21,18 +21,16 @@ namespace HotelServices.Services
         private readonly IRepository<int, Hotel> _hotelRepo;
         private readonly IRepository<int, Room> _roomRepo;
         private readonly ILogger<HotelsServices> _logger;
-        private readonly IRepository<int, HotelRoom> _hotelRoomRepo;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public HotelsServices(IRepository<int, Hotel> hotelRepo, ILogger<HotelsServices> logger,
-                                IRepository<int, Room> roomRepo, IRepository<int, HotelRoom> hotelRoomRepo,
-                                   IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+                                IRepository<int, Room> roomRepo, IHttpClientFactory httpClientFactory,
+                                IHttpContextAccessor httpContextAccessor)
         {
             _hotelRepo = hotelRepo;
             _logger = logger;
             _roomRepo = roomRepo;
-            _hotelRoomRepo = hotelRoomRepo;
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -41,7 +39,7 @@ namespace HotelServices.Services
         {
             try
             {
-                Hotel hotel = MapHotelDTOToHotel(hotelDTO);
+                var hotel = await MapHotelDTOToHotel(hotelDTO);
                 var result = await _hotelRepo.Add(hotel);
                 return await MapHotelToHotelReturnDTO(result);
             }
@@ -51,6 +49,7 @@ namespace HotelServices.Services
                 throw;
             }
         }
+
 
         public async Task<HotelReturnDTO> AddRoomToHotelAsync(int hotelId, RoomDTO roomDTO)
         {
@@ -69,6 +68,7 @@ namespace HotelServices.Services
                     RoomNumber = roomNumber,
                     RoomType = roomDTO.RoomType,
                     RoomFloor = roomDTO.RoomFloor,
+                    HotelId = hotelId,
                     AllowedNumOfGuests = roomDTO.AllowedNumOfGuests,
                     Rent = roomDTO.Rent,
                     IsDeleted = false
@@ -76,15 +76,9 @@ namespace HotelServices.Services
 
                 var resultRoom = await _roomRepo.Add(room);
 
-                HotelRoom hotelRoom = new HotelRoom
-                {
-                    RoomID = resultRoom.RoomNumber,
-                    HotelID = hotelId,
-                    Room = resultRoom,
-                    Hotel = hotel
-                };
-
-                await _hotelRoomRepo.Add(hotelRoom);
+                // Update the number of rooms in the hotel
+                hotel.NumOfRooms += 1;
+                await _hotelRepo.Update(hotel);
 
                 return await MapHotelToHotelReturnDTO(hotel);
             }
@@ -95,13 +89,48 @@ namespace HotelServices.Services
             }
         }
 
+
+        public async Task<List<RoomDTO>> GetAllRoomsAsync()
+        {
+            try
+            {
+                var rooms = await _roomRepo.Get();
+                var roomDTOs = rooms
+                    .Where(r => !r.IsDeleted) // Filter out deleted rooms
+                    .Select(r => new RoomDTO
+                    {
+                        IsDeleted = r.IsDeleted,
+                        RoomNumber = r.RoomNumber,
+                        RoomType = r.RoomType,
+                        RoomFloor = r.RoomFloor,
+                        AllowedNumOfGuests = r.AllowedNumOfGuests,
+                        Rent = r.Rent,
+                        HotelId = r.HotelId
+                    }).ToList();
+                return roomDTOs;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all rooms");
+                throw;
+            }
+        }
+
+
         public async Task<List<HotelReturnDTO>> GetAllHotels()
         {
             try
             {
                 var hotels = await _hotelRepo.Get();
-                var hotelDTOs = await Task.WhenAll(hotels.Select(h => MapHotelToHotelReturnDTO(h)));
-                return hotelDTOs.ToList();
+                var hotelDTOs = new List<HotelReturnDTO>();
+
+                foreach (var hotel in hotels)
+                {
+                    var hotelDTO = await MapHotelToHotelReturnDTO(hotel);
+                    hotelDTOs.Add(hotelDTO);
+                }
+
+                return hotelDTOs;
             }
             catch (Exception ex)
             {
@@ -109,6 +138,7 @@ namespace HotelServices.Services
                 throw;
             }
         }
+
 
         public async Task<HotelReturnDTO> GetHotelByID(int hotelId)
         {
@@ -147,8 +177,6 @@ namespace HotelServices.Services
             }
         }
 
-        // In HotelServices.Services.HotelsServices
-
         public async Task<List<RoomDTO>> GetAvailableRoomsAsync(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
         {
             try
@@ -167,7 +195,6 @@ namespace HotelServices.Services
                 if (!hotelResponse.IsSuccessStatusCode)
                 {
                     var errorMessage = await hotelResponse.Content.ReadAsStringAsync();
-                    _logger.LogError($"Error fetching booked rooms: {errorMessage}");
                     throw new Exception($"Failed to fetch booked rooms. Status Code: {hotelResponse.StatusCode}");
                 }
 
@@ -186,12 +213,13 @@ namespace HotelServices.Services
                 // Map to RoomDTO and include HotelId
                 return availableRooms.Select(r => new RoomDTO
                 {
+                    IsDeleted =r.IsDeleted,
                     RoomNumber = r.RoomNumber,
                     RoomType = r.RoomType,
                     RoomFloor = r.RoomFloor,
                     AllowedNumOfGuests = r.AllowedNumOfGuests,
                     Rent = r.Rent,
-                    HotelId = r.HotelRooms.FirstOrDefault()?.HotelID ?? 0 // Assuming one HotelRoom per Room
+                    HotelId = r.HotelId
                 }).ToList();
             }
             catch (Exception ex)
@@ -201,7 +229,59 @@ namespace HotelServices.Services
             }
         }
 
-        private Hotel MapHotelDTOToHotel(HotelDTO hotelDTO)
+        public async Task<List<RoomDTO>> GetAvailableRoomsByDateAsync(DateTime checkInDate, DateTime checkOutDate)
+        {
+            try
+            {
+                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                var hotelClient = _httpClientFactory.CreateClient("BookingService");
+
+                var formattedCheckInDate = checkInDate.ToString("yyyy-MM-dd");
+                var formattedCheckOutDate = checkOutDate.ToString("yyyy-MM-dd");
+
+                // Fetch booked rooms for the given date range
+                var requestUri = $"api/GetBookedRooms?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}";
+                hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var hotelResponse = await hotelClient.GetAsync(requestUri);
+                if (!hotelResponse.IsSuccessStatusCode)
+                {
+                    var errorMessage = await hotelResponse.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to fetch booked rooms. Status Code: {hotelResponse.StatusCode}");
+                }
+
+                var jsonResponse = await hotelResponse.Content.ReadAsStringAsync();
+                var bookedRoomNumbers = JsonConvert.DeserializeObject<List<int>>(jsonResponse);
+
+                // Fetch all rooms from Hotel Service
+                var allRooms = await _roomRepo.Get();
+
+                // Filter out rooms that are booked
+                var availableRooms = allRooms
+                    .Where(r => !bookedRoomNumbers.Contains(r.RoomNumber))
+                    .ToList();
+
+                // Map to RoomDTO
+                return availableRooms.Select(r => new RoomDTO
+                {
+                    IsDeleted = r.IsDeleted,
+                    RoomNumber = r.RoomNumber,
+                    RoomType = r.RoomType,
+                    RoomFloor = r.RoomFloor,
+                    AllowedNumOfGuests = r.AllowedNumOfGuests,
+                    Rent = r.Rent,
+                    HotelId = r.HotelId
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving available rooms");
+                throw;
+            }
+        }
+
+        private async Task<Hotel> MapHotelDTOToHotel(HotelDTO hotelDTO)
         {
             return new Hotel
             {
@@ -219,9 +299,20 @@ namespace HotelServices.Services
 
         private async Task<HotelReturnDTO> MapHotelToHotelReturnDTO(Hotel hotel)
         {
-            // Ensure HotelRooms and HotelImages are initialized
-            var roomIDs = hotel.HotelRooms?.Select(hr => hr.RoomID).ToList() ?? new List<int>();
             var hotelImages = hotel.HotelImages?.Select(image => image.ImageUrl).ToList() ?? new List<string>();
+
+            List<Room> rooms = new List<Room>();
+            try
+            {
+                // Get a new DbContext instance from the repository
+                rooms = (await _roomRepo.Get()).Where(r => r.HotelId == hotel.Id).ToList();
+            }
+            catch (NoSuchRoomException ex)
+            {
+                // Handle exception appropriately
+            }
+
+            var roomIDs = rooms.Select(r => r.RoomNumber).ToList();
 
             return new HotelReturnDTO
             {
@@ -239,5 +330,34 @@ namespace HotelServices.Services
             };
         }
 
+
+        public async Task UpdateHotelAverageRatingAsync(int hotelId, double newRating)
+        {
+            try
+            {
+                //var hotel = await _hotelRepo.Get(hotelId);
+                //if (hotel == null)
+                //{
+                //    throw new NoSuchHotelException(hotelId);
+                //}
+
+                //// Fetch all rooms associated with this hotel to get their ratings
+                //var rooms = await _roomRepo.Get();
+                //var hotelRooms = rooms.Where(r => r.HotelId == hotel.Id).ToList();
+
+                //// Calculate the new average rating
+                //var totalRatings = hotelRooms.Sum(r => r.Ratings);
+                //var numberOfRatings = hotelRooms.Count;
+                //var newAverageRating = totalRatings / (double)numberOfRatings;
+
+                //hotel.AverageRatings = newAverageRating;
+                //await _hotelRepo.Update(hotel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the hotel's average rating");
+                throw;
+            }
+        }
     }
 }

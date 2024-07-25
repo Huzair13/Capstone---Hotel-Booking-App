@@ -89,35 +89,15 @@ namespace HotelServices.Migrations
                     b.ToTable("HotelImages");
                 });
 
-            modelBuilder.Entity("HotelServices.Models.HotelRoom", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("HotelID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoomID")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HotelID");
-
-                    b.HasIndex("RoomID");
-
-                    b.ToTable("HotelRooms");
-                });
-
             modelBuilder.Entity("HotelServices.Models.Room", b =>
                 {
                     b.Property<int>("RoomNumber")
                         .HasColumnType("int");
 
                     b.Property<int>("AllowedNumOfGuests")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HotelId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
@@ -133,6 +113,8 @@ namespace HotelServices.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("RoomNumber");
+
+                    b.HasIndex("HotelId");
 
                     b.HasIndex("RoomNumber")
                         .IsUnique();
@@ -151,35 +133,22 @@ namespace HotelServices.Migrations
                     b.Navigation("Hotel");
                 });
 
-            modelBuilder.Entity("HotelServices.Models.HotelRoom", b =>
+            modelBuilder.Entity("HotelServices.Models.Room", b =>
                 {
                     b.HasOne("HotelServices.Models.Hotel", "Hotel")
-                        .WithMany("HotelRooms")
-                        .HasForeignKey("HotelID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HotelServices.Models.Room", "Room")
-                        .WithMany("HotelRooms")
-                        .HasForeignKey("RoomID")
+                        .WithMany("Rooms")
+                        .HasForeignKey("HotelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Hotel");
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("HotelServices.Models.Hotel", b =>
                 {
                     b.Navigation("HotelImages");
 
-                    b.Navigation("HotelRooms");
-                });
-
-            modelBuilder.Entity("HotelServices.Models.Room", b =>
-                {
-                    b.Navigation("HotelRooms");
+                    b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618
         }

@@ -11,7 +11,6 @@ namespace HotelServices.Contexts
 
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<HotelImage> HotelImages { get; set; }
-        public DbSet<HotelRoom> HotelRooms { get; set; }
         public DbSet<Room> Rooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,17 +30,13 @@ namespace HotelServices.Contexts
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
-            modelBuilder.Entity<HotelRoom>()
-                .HasOne(hr => hr.Room)
-                .WithMany(r => r.HotelRooms)
-                .HasForeignKey(hr => hr.RoomID)
-                .OnDelete(DeleteBehavior.Cascade); 
+            modelBuilder.Entity<Room>()
+                .HasOne(q => q.Hotel)
+                .WithMany(q => q.Rooms)
+                .HasForeignKey(q => q.HotelId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
 
-            modelBuilder.Entity<HotelRoom>()
-                .HasOne(hr => hr.Hotel)
-                .WithMany(h => h.HotelRooms)
-                .HasForeignKey(hr => hr.HotelID)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

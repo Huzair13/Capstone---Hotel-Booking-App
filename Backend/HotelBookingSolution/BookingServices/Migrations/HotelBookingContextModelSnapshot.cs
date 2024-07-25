@@ -22,7 +22,7 @@ namespace BookingServices.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("BookingServices.Models.Booking", b =>
+            modelBuilder.Entity("Booking", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,10 +39,13 @@ namespace BookingServices.Migrations
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
 
-                    b.Property<int>("NumberOfGuests")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("RoomNumber")
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("NumberOfGuests")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
@@ -54,6 +57,49 @@ namespace BookingServices.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("BookingServices.Models.BookingDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HotelId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Rent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RoomNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingDetail");
+                });
+
+            modelBuilder.Entity("BookingServices.Models.BookingDetail", b =>
+                {
+                    b.HasOne("Booking", "Booking")
+                        .WithMany("BookingDetails")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Booking", b =>
+                {
+                    b.Navigation("BookingDetails");
                 });
 #pragma warning restore 612, 618
         }

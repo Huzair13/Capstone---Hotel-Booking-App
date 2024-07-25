@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "3ufvoLtbxjQpxScAfVYGKRnO06cSz3zjjnnElTRtbhEYDuBq4Uww9zzbxzq3IaUR4xHRi7Ehztc8gS53WlZiDQ==",
+  "dgSpecHash": "6gUUvgEYmkEzJBSJcyXk+E/ccMNsloBLMFJsPcO+dDwcnz/4EvmeTcLKQO3pp0CsCvNq7cRPxQv2x47WRe+5VA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\VC\\source\\repos\\Capstone (MicroServices)\\HotelBookingSolution\\HotelBooking\\AuthenticationServices.csproj",
+  "projectFilePath": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\HotelBooking\\AuthenticationServices.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VC\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\VC\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",

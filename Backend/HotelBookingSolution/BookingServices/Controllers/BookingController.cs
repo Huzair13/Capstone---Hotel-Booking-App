@@ -61,7 +61,7 @@ namespace BookingServices.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while adding the booking.");
-                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+                return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. {ex.Message}"));
             }
             return BadRequest("All Details are not provided");
         }
@@ -75,8 +75,8 @@ namespace BookingServices.Controllers
                 CheckOutDate = bookingInputDTO.CheckOutDate,
                 HotelId = bookingInputDTO.HotelId,
                 NumberOfGuests = bookingInputDTO.NumberOfGuests,
-                TotalPrice = bookingInputDTO.TotalPrice,
                 RoomNumber = bookingInputDTO.RoomNumber,
+                NumberOfRooms= bookingInputDTO.NumberOfRooms
             };
             return bookingDTO;
         }
@@ -123,10 +123,11 @@ namespace BookingServices.Controllers
         [ProducesResponseType(typeof(BookingReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BookingReturnDTO>> GetBookingByUser(int userId)
+        public async Task<ActionResult<BookingReturnDTO>> GetBookingByUser()
         {
             try
             {
+                int userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
                 var result = await _bookingServices.GetBookingByUser(userId);
                 return Ok(result);
             }

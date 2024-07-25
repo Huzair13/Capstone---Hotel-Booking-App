@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "J9pAQV58d7ot6JtQfsQpojEf80KNSPYKwFqLMTXq40KXk9P+JhV3Lk4DToin8B3weEQ11RaDiTIrB/DLanf7dA==",
+  "dgSpecHash": "mCAZec93OxGuA2lIkZ/g8lU7URxQkMh/4emzyiLNSRFiauiz1l5LzEvRV/8jpa0vXsHZ8kVqCVOiQ1L8ufRS1A==",
   "success": true,
-  "projectFilePath": "C:\\Users\\VC\\source\\repos\\Capstone (MicroServices)\\HotelBookingSolution\\BookingServices\\BookingServices.csproj",
+  "projectFilePath": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\BookingServices.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VC\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\VC\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.32\\microsoft.aspnetcore.authentication.jwtbearer.6.0.32.nupkg.sha512",

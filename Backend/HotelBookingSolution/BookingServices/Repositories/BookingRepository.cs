@@ -31,7 +31,8 @@ namespace BookingServices.Repositories
 
         public async Task<Booking> Get(int bookingID)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingID);
+            var booking = await _context.Bookings.Include(r=>r.BookingDetails)
+                            .FirstOrDefaultAsync(b => b.Id == bookingID);
             if (booking != null)
             {
                 return booking;
@@ -41,7 +42,7 @@ namespace BookingServices.Repositories
 
         public async Task<IEnumerable<Booking>> Get()
         {
-            var bookings = await _context.Bookings.ToListAsync();
+            var bookings = await _context.Bookings.Include(r => r.BookingDetails).ToListAsync();
             if (bookings.Count != 0)
             {
                 return bookings;

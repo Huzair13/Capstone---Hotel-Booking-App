@@ -35,7 +35,7 @@ namespace HotelServices.Controllers
         [ProducesResponseType(typeof(HotelReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<HotelReturnDTO>> AddHotel([FromForm] HotelDTO hotelDTO, IFormFileCollection files)
+        public async Task<ActionResult<HotelReturnDTO>> AddHotel([FromForm] HotelInputDTO hotelInputDTO, IFormFileCollection files)
         {
             if (ModelState.IsValid)
             {
@@ -57,7 +57,18 @@ namespace HotelServices.Controllers
                         }
                     }
 
-                    hotelDTO.HotelImages = imageUrls;
+                    HotelDTO hotelDTO = new HotelDTO()
+                    {
+                        Name = hotelInputDTO.Name,
+                        Description = hotelInputDTO.Description,
+                        State = hotelInputDTO.State,
+                        City = hotelInputDTO.City,
+                        Address = hotelInputDTO.Address,
+                        AverageRatings = 0,
+                        NumOfRooms = 0,
+                        Type = hotelInputDTO.Type,
+                        HotelImages = imageUrls
+                    };
 
                     var result = await _hotelServices.AddHotelAsync(hotelDTO);
                     return Ok(result);
@@ -94,6 +105,29 @@ namespace HotelServices.Controllers
             }
         }
 
+        // Get All Rooms
+        [HttpGet("GetAllRooms")]
+        [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<RoomDTO>>> GetAllRooms()
+        {
+            try
+            {
+                var result = await _hotelServices.GetAllRoomsAsync();
+                return Ok(result);
+            }
+            catch (NoSuchRoomException ex)
+            {
+                _logger.LogError(ex, "Rooms Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all Rooms.");
+                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
         // Get All Hotels
         [HttpGet("GetAvailableHotelsRooms")]
         [ProducesResponseType(typeof(List<RoomDTO>), StatusCodes.Status200OK)]
@@ -104,6 +138,30 @@ namespace HotelServices.Controllers
             try
             {
                 var result = await _hotelServices.GetAvailableRoomsAsync(checkInDate, checkOutDate, numberOfGuests);
+                return Ok(result);
+            }
+            catch (NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Rooms Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all Available rooms.");
+                return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. + {ex.Message}"));
+            }
+        }
+
+        // Get All Hotels
+        [HttpGet("GetAvailableHotelsRoomsByDate")]
+        [ProducesResponseType(typeof(List<RoomDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<RoomDTO>>> GetAvailableHotelsRoomsByDate(DateTime checkInDate, DateTime checkOutDate)
+        {
+            try
+            {
+                var result = await _hotelServices.GetAvailableRoomsByDateAsync(checkInDate, checkOutDate);
                 return Ok(result);
             }
             catch (NoSuchHotelException ex)

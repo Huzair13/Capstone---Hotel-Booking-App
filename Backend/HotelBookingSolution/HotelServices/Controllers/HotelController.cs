@@ -83,6 +83,29 @@ namespace HotelServices.Controllers
         }
 
         // Get All Hotels
+        [HttpGet("GetAllAmenities")]
+        [ProducesResponseType(typeof(IEnumerable<Amenity>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Amenity>>> GetAllAmenities()
+        {
+            try
+            {
+                var result = await _hotelServices.GetAllAmenities();
+                return Ok(result);
+            }
+            catch (NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Amenities Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all Amenities.");
+                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
+        // Get All Hotels
         [HttpGet("GetAllHotels")]
         [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -94,6 +117,92 @@ namespace HotelServices.Controllers
                 return Ok(result);
             }
             catch(NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Hotels Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all hotels.");
+                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
+
+        [HttpPost("AddAmenitiesToHotel")]
+        [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Hotel>> AddAmenitiesToHotel(AddAmenitiesToHotelDTO addAmenitiesToHotelDTO)
+        {
+            try
+            {
+                var result = await _hotelServices.AddAmenitiesToHotelAsync(addAmenitiesToHotelDTO);
+                return Ok(result);
+            }
+            catch (NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Hotels Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding amenties to the room ");
+                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
+        [HttpPost("AddAmenity")]
+        [ProducesResponseType(typeof(List<AmenityDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AmenityDTO>> AddAmenity(AmenityDTO amenityDTO)
+        {
+            try
+            {
+                var result = await _hotelServices.AddAmenityAsync(amenityDTO);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding amenty ");
+                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
+        [HttpPost("DeleteAmenityFromHotel")]
+        [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Room>> DeleteAmenityFromHotel(DeleteAmenityDTO deleteAmenityDTO)
+        {
+            try
+            {
+                var result = await _hotelServices.DeleteAmenityFromHotelAsync(deleteAmenityDTO);
+                return Ok(result);
+            }
+            catch (NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Hotels Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding amenties to the room ");
+                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
+
+        //UPDATE HOTEL AVERAGE RATING
+        [HttpPut("UpdateAverageRatings")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> UpdateAverageRatings(HotelUpdateDTO hotelUpdateDTO)
+        {
+            try
+            {
+                await _hotelServices.UpdateHotelAverageRatingAsync(hotelUpdateDTO);
+                return Ok();
+            }
+            catch (NoSuchHotelException ex)
             {
                 _logger.LogError(ex, "Hotels Not found");
                 return NotFound(new ErrorModel(404, ex.Message));

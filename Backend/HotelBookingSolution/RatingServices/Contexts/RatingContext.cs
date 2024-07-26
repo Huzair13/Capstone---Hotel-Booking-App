@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RatingServices.Models;
+using System.Reflection.Emit;
 
 namespace RatingServices.Contexts
 {
@@ -10,7 +11,13 @@ namespace RatingServices.Contexts
 
         public RatingContext(DbContextOptions options) : base(options)
         {
+        }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Rating>()
+                .Property(b => b.RatingValue)
+                .HasColumnType("decimal(18, 2)");
         }
     }
 }

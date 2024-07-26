@@ -2,6 +2,7 @@
 using BookingServices.Interfaces;
 using BookingServices.Models;
 using BookingServices.Models.DTOs;
+using CancellationService.Exceptions;
 using HotelBooking.Interfaces;
 using HotelServices.Models.DTOs;
 using Newtonsoft.Json;
@@ -54,11 +55,13 @@ namespace BookingServices.Services
         }
 
 
-        public async Task<BookingReturnDTO> AddBookingAsync(BookingDTO bookingDTO)
+        public async Task<BookingReturnDTO> AddBookingAsync(BookingDTO bookingDTO,int currUserId)
         {
             try
             {
                 var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                await checkUserActiveStatus(currUserId, token);
 
                 // Check if HotelID exists
                 var hotelClient = _httpClientFactory.CreateClient("HotelService");
@@ -197,6 +200,109 @@ namespace BookingServices.Services
         }
 
 
+        public async Task RevertBookingAsync(int bookingId, int currUserId)
+        {
+            try
+            {
+                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                // Check if the user is active
+                await checkUserActiveStatus(currUserId, token);
+
+                // Fetch the booking details
+                var booking = await _bookingRepo.Get(bookingId);
+                if (booking == null)
+                {
+                    throw new Exception("Booking not found");
+                }
+
+                // Check if the booking belongs to the current user
+                if (booking.UserId != currUserId)
+                {
+                    throw new UnauthorizedAccessException("You do not have permission to revert this booking");
+                }
+
+                // Delete the booking details
+                try 
+                {
+                    var isBookingDetailsDeleted = await _bookingRepo.Delete(bookingId);
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while reverting the booking");
+                throw;
+            }
+        }
+
+
+        private async Task checkUserActiveStatus(int currUserId, string token)
+        {
+            var userClient = _httpClientFactory.CreateClient("UserAuthService");
+            userClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var userResponse = await userClient.PostAsync($"IsActive/{currUserId}", null);
+
+            if (userResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                throw new InvalidUserException();
+            }
+
+            if (!userResponse.IsSuccessStatusCode)
+            {
+                throw new InvalidUserException("Failed to check user activation status");
+            }
+
+            var contentString = await userResponse.Content.ReadAsStringAsync();
+            var isActive = JsonConvert.DeserializeObject<bool>(contentString);
+
+            if (!isActive)
+            {
+                throw new UserNotActiveException();
+            }
+        }
+
+        public async Task<CancelReturnDTO> CancelBookingByBookingId(int BookingID)
+        {
+            try
+            {
+                var booking = await _bookingRepo.Get(BookingID);
+                booking.IsCancelled = true;
+                var result = await _bookingRepo.Update(booking);
+                var returnResult = await MapBookingToCanelReturnDTO(result);
+                return returnResult;
+            }
+            catch(NoSuchBookingException ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private async Task<CancelReturnDTO> MapBookingToCanelReturnDTO(Booking result)
+        {
+            CancelReturnDTO cancelReturnDTO = new CancelReturnDTO()
+            {
+                Id = result.Id,
+                HotelId = result.HotelId,
+                CheckInDate = result.CheckInDate,
+                CheckOutDate = result.CheckOutDate,
+                IsCancelled = result.IsCancelled,
+                IsPaid = result.IsPaid,
+                NumberOfGuests = result.NumberOfGuests,
+                TotalAmount = result.TotalAmount,
+                UserId = result.UserId,
+            };
+            return cancelReturnDTO;
+        }
+
         public async Task<List<BookingReturnDTO>> GetAllBookings()
         {
             try
@@ -211,7 +317,9 @@ namespace BookingServices.Services
                     CheckOutDate = booking.CheckOutDate,
                     NumberOfGuests = booking.NumberOfGuests,
                     TotalPrice = booking.TotalAmount,
-                    RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() // Populate RoomNumbers
+                    IsCancelled = booking.IsCancelled,
+                    IsPaid =booking.IsPaid,
+                    RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() 
                 }).ToList();
             }
             catch (Exception ex)
@@ -221,7 +329,7 @@ namespace BookingServices.Services
             }
         }
 
-        public async Task<BookingReturnDTO> GetBookingByID(int bookingId)
+        public async Task<BookingByIdReturnDTO> GetBookingByID(int bookingId)
         {
             try
             {
@@ -231,16 +339,17 @@ namespace BookingServices.Services
                     throw new Exception("Booking not found");
                 }
 
-                return new BookingReturnDTO
+                return new BookingByIdReturnDTO
                 {
-                    BookingId = booking.Id,
+                    Id = booking.Id,
                     HotelId = booking.HotelId,
                     UserId = booking.UserId,
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
                     NumberOfGuests = booking.NumberOfGuests,
                     TotalPrice = booking.TotalAmount,
-                    RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() // Populate RoomNumbers
+                    IsCancelled =booking.IsCancelled,
+                    IsPaid = booking.IsPaid
                 };
             }
             catch (Exception ex)

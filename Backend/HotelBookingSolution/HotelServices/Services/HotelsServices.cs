@@ -18,23 +18,28 @@ namespace HotelServices.Services
 {
     public class HotelsServices : IHotelServices
     {
+        //INITIALIZATION
         private readonly IRepository<int, Hotel> _hotelRepo;
         private readonly IRepository<int, Room> _roomRepo;
+        private readonly IRepository<int, Amenity> _amenityRepo;
         private readonly ILogger<HotelsServices> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        //DEPENDENCY INJECTION
         public HotelsServices(IRepository<int, Hotel> hotelRepo, ILogger<HotelsServices> logger,
                                 IRepository<int, Room> roomRepo, IHttpClientFactory httpClientFactory,
-                                IHttpContextAccessor httpContextAccessor)
+                                IHttpContextAccessor httpContextAccessor, IRepository<int,Amenity> amenityRepo)
         {
             _hotelRepo = hotelRepo;
             _logger = logger;
             _roomRepo = roomRepo;
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
+            _amenityRepo = amenityRepo;
         }
 
+        //ADD HOTEL 
         public async Task<HotelReturnDTO> AddHotelAsync(HotelDTO hotelDTO)
         {
             try
@@ -50,7 +55,7 @@ namespace HotelServices.Services
             }
         }
 
-
+        //ADD ROOMS TO HOTEL
         public async Task<HotelReturnDTO> AddRoomToHotelAsync(int hotelId, RoomDTO roomDTO)
         {
             try
@@ -89,7 +94,7 @@ namespace HotelServices.Services
             }
         }
 
-
+        //GET ALL ROOMS
         public async Task<List<RoomDTO>> GetAllRoomsAsync()
         {
             try
@@ -116,7 +121,7 @@ namespace HotelServices.Services
             }
         }
 
-
+        //GET ALL ROOMS
         public async Task<List<HotelReturnDTO>> GetAllHotels()
         {
             try
@@ -139,7 +144,48 @@ namespace HotelServices.Services
             }
         }
 
+        //ADD AMENITIES TO ROOM
+        public async Task<HotelReturnDTO> AddAmenitiesToHotelAsync(AddAmenitiesToHotelDTO dto)
+        {
+            try
+            {
+                var hotel = await _hotelRepo.Get(dto.HotelID);
+                if (hotel == null)
+                {
+                    throw new NoSuchHotelException(dto.HotelID);
+                }
 
+                foreach (var amenityId in dto.AmenityIds)
+                {
+                    var amenity = await _amenityRepo.Get(amenityId);
+                    if (amenity == null)
+                    {
+                        throw new NoSuchAmenityFound(amenityId);
+                    }
+
+                    if (!hotel.HotelAmenities.Any(ha => ha.AmenityId == amenityId))
+                    {
+                        hotel.HotelAmenities.Add(new HotelAmenity
+                        {
+                            HotelId = hotel.Id,
+                            AmenityId = amenityId
+                        });
+                    }
+                }
+
+                var result = await _hotelRepo.Update(hotel);
+                var returnResult = await MapHotelToHotelReturnDTO(result);
+                return returnResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding amenities to the hotel");
+                throw;
+            }
+        }
+
+
+        //GET HOTEL BY ID
         public async Task<HotelReturnDTO> GetHotelByID(int hotelId)
         {
             try
@@ -158,6 +204,7 @@ namespace HotelServices.Services
             }
         }
 
+        // GET HOTEL BY NAME
         public async Task<HotelReturnDTO> GetHotelByName(string hotelName)
         {
             try
@@ -177,6 +224,7 @@ namespace HotelServices.Services
             }
         }
 
+        //GET AVAILABLE ROOMS 
         public async Task<List<RoomDTO>> GetAvailableRoomsAsync(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
         {
             try
@@ -229,6 +277,8 @@ namespace HotelServices.Services
             }
         }
 
+
+        //GET AVAILABLE ROOMS BY DATE
         public async Task<List<RoomDTO>> GetAvailableRoomsByDateAsync(DateTime checkInDate, DateTime checkOutDate)
         {
             try
@@ -281,6 +331,7 @@ namespace HotelServices.Services
             }
         }
 
+        // MAPPING ----- HOTELDTO TO HOTEL
         private async Task<Hotel> MapHotelDTOToHotel(HotelDTO hotelDTO)
         {
             return new Hotel
@@ -297,15 +348,21 @@ namespace HotelServices.Services
             };
         }
 
+        //MAPPING --- HOTEL TO HOTEL RETURN DTO
         private async Task<HotelReturnDTO> MapHotelToHotelReturnDTO(Hotel hotel)
         {
             var hotelImages = hotel.HotelImages?.Select(image => image.ImageUrl).ToList() ?? new List<string>();
 
             List<Room> rooms = new List<Room>();
+            List<Amenity> amenities = new List<Amenity>();
             try
             {
                 // Get a new DbContext instance from the repository
-                rooms = (await _roomRepo.Get()).Where(r => r.HotelId == hotel.Id).ToList();
+                rooms = (await _roomRepo.Get()).Where(r => r.HotelId == hotel.Id).ToList() ?? new List<Room>();
+
+                amenities = (await _amenityRepo.Get())
+                    .Where(a => a.HotelAmenities != null && a.HotelAmenities.Any(ha => ha.HotelId == hotel.Id))
+                    .ToList() ?? new List<Amenity>();
             }
             catch (NoSuchRoomException ex)
             {
@@ -313,6 +370,7 @@ namespace HotelServices.Services
             }
 
             var roomIDs = rooms.Select(r => r.RoomNumber).ToList();
+            var amenityIDs = amenities.Select(a => a.Id).ToList();
 
             return new HotelReturnDTO
             {
@@ -326,32 +384,26 @@ namespace HotelServices.Services
                 AverageRatings = hotel.AverageRatings,
                 Description = hotel.Description,
                 HotelImages = hotelImages,
-                RoomIDs = roomIDs
+                RoomIDs = roomIDs,
+                Amenities = amenityIDs
             };
         }
 
 
-        public async Task UpdateHotelAverageRatingAsync(int hotelId, double newRating)
+        //UPDATE HOTEL AVERAGE RATING
+        public async Task UpdateHotelAverageRatingAsync(HotelUpdateDTO hotelUpdateDTO)
         {
             try
             {
-                //var hotel = await _hotelRepo.Get(hotelId);
-                //if (hotel == null)
-                //{
-                //    throw new NoSuchHotelException(hotelId);
-                //}
+                var hotel = await _hotelRepo.Get(hotelUpdateDTO.HotelID);
+                if (hotel == null)
+                {
+                    throw new NoSuchHotelException(hotelUpdateDTO.HotelID);
+                }
 
-                //// Fetch all rooms associated with this hotel to get their ratings
-                //var rooms = await _roomRepo.Get();
-                //var hotelRooms = rooms.Where(r => r.HotelId == hotel.Id).ToList();
+                hotel.AverageRatings=hotelUpdateDTO.averageRating;
 
-                //// Calculate the new average rating
-                //var totalRatings = hotelRooms.Sum(r => r.Ratings);
-                //var numberOfRatings = hotelRooms.Count;
-                //var newAverageRating = totalRatings / (double)numberOfRatings;
-
-                //hotel.AverageRatings = newAverageRating;
-                //await _hotelRepo.Update(hotel);
+                var result =await _hotelRepo.Update(hotel);
             }
             catch (Exception ex)
             {
@@ -359,5 +411,86 @@ namespace HotelServices.Services
                 throw;
             }
         }
+
+        //GET AMENITIES
+        public async Task<IEnumerable<Amenity>> GetAllAmenities()
+        {
+            try
+            {
+                var result = await _amenityRepo.Get();
+                return result;
+            }
+            catch(NoSuchAmenityFound ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        // ADD AMENITIES
+        public async Task<AmenityDTO> AddAmenityAsync(AmenityDTO amenityDTO)
+        {
+            try
+            {
+                var amenity = new Amenity
+                {
+                    Name = amenityDTO.Name,
+                };
+
+                var result = await _amenityRepo.Add(amenity);
+                return new AmenityDTO
+                {
+                    Id = result.Id,
+                    Name = result.Name
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding the amenity");
+                throw;
+            }
+        }
+
+        //DELETE AMENITIES
+        public async Task<HotelReturnDTO> DeleteAmenityFromHotelAsync(DeleteAmenityDTO deleteAmenityDTO)
+        {
+            try
+            {
+                var hotel = await _hotelRepo.Get(deleteAmenityDTO.HotelID);
+                if (hotel == null)
+                {
+                    throw new NoSuchHotelException(deleteAmenityDTO.HotelID);
+                }
+
+                var amenity = await _amenityRepo.Get(deleteAmenityDTO.AmenityId);
+                if (amenity == null)
+                {
+                    throw new NoSuchAmenityFound(deleteAmenityDTO.AmenityId);
+                }
+
+                var hotelAmenity = hotel.HotelAmenities.FirstOrDefault(ha => ha.AmenityId == deleteAmenityDTO.AmenityId);
+                if (hotelAmenity == null)
+                {
+                    throw new AmenityNotInHotelException(deleteAmenityDTO.HotelID, deleteAmenityDTO.AmenityId);
+                }
+
+                hotel.HotelAmenities.Remove(hotelAmenity);
+
+                var result = await _hotelRepo.Update(hotel);
+                var returnResult = await MapHotelToHotelReturnDTO(result);
+
+                return returnResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the amenity from the hotel");
+                throw;
+            }
+        }
+
+
     }
 }

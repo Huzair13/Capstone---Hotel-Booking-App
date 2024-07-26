@@ -12,6 +12,8 @@ namespace HotelServices.Contexts
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<HotelImage> HotelImages { get; set; }
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Amenity> Amenities { get; set; }
+        public DbSet<HotelAmenity> HotelAmenities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,6 +23,11 @@ namespace HotelServices.Contexts
 
             modelBuilder.Entity<Room>()
                 .Property(b => b.Rent)
+                .HasColumnType("decimal(18, 2)");
+
+
+            modelBuilder.Entity<Hotel>()
+                .Property(b => b.AverageRatings)
                 .HasColumnType("decimal(18, 2)");
 
             modelBuilder.Entity<HotelImage>()
@@ -34,6 +41,20 @@ namespace HotelServices.Contexts
                 .HasOne(q => q.Hotel)
                 .WithMany(q => q.Rooms)
                 .HasForeignKey(q => q.HotelId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            modelBuilder.Entity<HotelAmenity>()
+                .HasOne(ra => ra.Hotel)
+                .WithMany(r => r.HotelAmenities)
+                .HasForeignKey(ra => ra.HotelId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            modelBuilder.Entity<HotelAmenity>()
+                .HasOne(ra => ra.Amenity)
+                .WithMany(a => a.HotelAmenities)
+                .HasForeignKey(ra => ra.AmenityId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 

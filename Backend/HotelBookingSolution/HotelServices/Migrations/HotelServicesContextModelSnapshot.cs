@@ -21,6 +21,23 @@ namespace HotelServices.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("HotelServices.Models.Amenity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Amenities");
+                });
+
             modelBuilder.Entity("HotelServices.Models.Hotel", b =>
                 {
                     b.Property<int>("Id")
@@ -33,8 +50,8 @@ namespace HotelServices.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("AverageRatings")
-                        .HasColumnType("int");
+                    b.Property<decimal>("AverageRatings")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -65,6 +82,29 @@ namespace HotelServices.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Hotels");
+                });
+
+            modelBuilder.Entity("HotelServices.Models.HotelAmenity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("AmenityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HotelId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AmenityId");
+
+                    b.HasIndex("HotelId");
+
+                    b.ToTable("HotelAmenities");
                 });
 
             modelBuilder.Entity("HotelServices.Models.HotelImage", b =>
@@ -122,6 +162,25 @@ namespace HotelServices.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("HotelServices.Models.HotelAmenity", b =>
+                {
+                    b.HasOne("HotelServices.Models.Amenity", "Amenity")
+                        .WithMany("HotelAmenities")
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HotelServices.Models.Hotel", "Hotel")
+                        .WithMany("HotelAmenities")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Amenity");
+
+                    b.Navigation("Hotel");
+                });
+
             modelBuilder.Entity("HotelServices.Models.HotelImage", b =>
                 {
                     b.HasOne("HotelServices.Models.Hotel", "Hotel")
@@ -144,8 +203,15 @@ namespace HotelServices.Migrations
                     b.Navigation("Hotel");
                 });
 
+            modelBuilder.Entity("HotelServices.Models.Amenity", b =>
+                {
+                    b.Navigation("HotelAmenities");
+                });
+
             modelBuilder.Entity("HotelServices.Models.Hotel", b =>
                 {
+                    b.Navigation("HotelAmenities");
+
                     b.Navigation("HotelImages");
 
                     b.Navigation("Rooms");

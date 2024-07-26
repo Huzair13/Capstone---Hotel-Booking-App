@@ -12,10 +12,12 @@ namespace HotelServices.Models
         public string State { get; set; }
         public string Type { get; set; }
         public int NumOfRooms { get; set; }
-        public int AverageRatings { get; set; }
+        public decimal AverageRatings { get; set; }
         public string Description { get; set; }
         public bool IsDeleted { get; set; } = false;
         public ICollection<HotelImage> HotelImages { get; set; }
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
+        public ICollection<HotelAmenity> HotelAmenities { get; set; } = new List<HotelAmenity>();
+
     }
 }

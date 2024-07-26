@@ -9,9 +9,10 @@
         public string State { get; set; }
         public string Type { get; set; }
         public int NumOfRooms { get; set; }
-        public int AverageRatings { get; set; }
+        public decimal AverageRatings { get; set; }
         public string Description { get; set; }
         public List<string> HotelImages { get; set; }
         public List<int>? RoomIDs { get; set; }
+        public List<int>? Amenities { get; set; }
     }
 }

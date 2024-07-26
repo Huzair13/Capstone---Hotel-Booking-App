@@ -36,7 +36,7 @@ namespace HotelServices.Repositories
         public async Task<Room> Get(int roomId)
         {
             var room = await _context.Rooms
-                .FirstOrDefaultAsync(r => r.RoomNumber == roomId);
+                    .FirstOrDefaultAsync(r => r.RoomNumber == roomId);
 
             if (room != null)
             {
@@ -49,7 +49,7 @@ namespace HotelServices.Repositories
         public async Task<IEnumerable<Room>> Get()
         {
             var rooms = await _context.Rooms
-                .ToListAsync();
+                    .ToListAsync();
 
             if (rooms.Count != 0)
             {

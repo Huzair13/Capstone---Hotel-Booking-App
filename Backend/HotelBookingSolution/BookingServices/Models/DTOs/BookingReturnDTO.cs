@@ -9,7 +9,9 @@
         public DateTime CheckOutDate { get; set; }
         public int NumberOfGuests { get; set; }
         public decimal TotalPrice { get; set; }
-        public List<int> RoomNumbers { get; set; } // List of room numbers
+        public List<int> RoomNumbers { get; set; } 
+        public bool IsCancelled { get; set; }
+        public bool IsPaid { get; set; }
     }
 
 }

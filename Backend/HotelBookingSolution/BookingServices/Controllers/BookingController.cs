@@ -1,4 +1,5 @@
-﻿using BookingServices.Interfaces;
+﻿using BookingServices.Exceptions;
+using BookingServices.Interfaces;
 using BookingServices.Models.DTOs;
 using HotelBooking.Models;
 using Microsoft.AspNetCore.Cors;
@@ -55,13 +56,37 @@ namespace BookingServices.Controllers
             {
                 var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
                 BookingDTO bookingDTO = await MapBookingInputDTOToBookingDTO(bookingInputDTO, userId);
-                var result = await _bookingServices.AddBookingAsync(bookingDTO);
+                var result = await _bookingServices.AddBookingAsync(bookingDTO,userId);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while adding the booking.");
                 return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. {ex.Message}"));
+            }
+            return BadRequest("All Details are not provided");
+        }
+
+        //REVERT THE BOOKING
+        [HttpPost("RevertBooking{BookingId}")]
+        [ProducesResponseType(typeof(BookingReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<BookingReturnDTO>> RevertBooking(int BookingId)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
+                    await _bookingServices.RevertBookingAsync(BookingId, userId);
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred while adding the booking.");
+                    return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. {ex.Message}"));
+                }
             }
             return BadRequest("All Details are not provided");
         }
@@ -101,10 +126,10 @@ namespace BookingServices.Controllers
 
         // Get Booking by ID
         [HttpGet("GetBookingByID/{bookingId}")]
-        [ProducesResponseType(typeof(BookingReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BookingByIdReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BookingReturnDTO>> GetBookingByID(int bookingId)
+        public async Task<ActionResult<BookingByIdReturnDTO>> GetBookingByID(int bookingId)
         {
             try
             {
@@ -115,6 +140,30 @@ namespace BookingServices.Controllers
             {
                 _logger.LogError(ex, "An error occurred while retrieving the booking by ID.");
                 return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
+        // Get Booking by ID
+        [HttpPost("CancelBookingByBookingId/{bookingId}")]
+        [ProducesResponseType(typeof(CancelReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CancelReturnDTO>> CancelBookingByBookingId(int bookingId)
+        {
+            try
+            {
+                var result = await _bookingServices.CancelBookingByBookingId(bookingId);
+                return Ok(result);
+            }
+            catch(NoSuchBookingException ex)
+            {
+                _logger.LogError(ex, "NoSuchBookingException at CancelBookingByBookingId");
+                return StatusCode(404, new ErrorModel(404,ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving the booking by ID.");
+                return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request { ex.Message }"));
             }
         }
 

@@ -6,7 +6,7 @@
         public int UserId { get; set; }
         public int HotelId { get; set; }
         public string Feedback { get; set; }
-        public int RatingValue { get; set; } // Rating out of 5
+        public decimal RatingValue { get; set; } 
         public DateTime CreatedAt { get; set; }
     }
 }

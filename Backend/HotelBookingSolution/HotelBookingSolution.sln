@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotelServices", "HotelServi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingServices", "BookingServices\BookingServices.csproj", "{847E3CEF-C943-4987-9C72-292CFBA28D00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RatingServices", "RatingServices\RatingServices.csproj", "{D548E313-3B0F-4369-BA51-DA0C43E852A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RatingServices", "RatingServices\RatingServices.csproj", "{D548E313-3B0F-4369-BA51-DA0C43E852A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CancellationService", "CancellationService\CancellationService.csproj", "{B31DDA2D-AF3D-42BC-9476-772CD65C7803}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{D548E313-3B0F-4369-BA51-DA0C43E852A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D548E313-3B0F-4369-BA51-DA0C43E852A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D548E313-3B0F-4369-BA51-DA0C43E852A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B31DDA2D-AF3D-42BC-9476-772CD65C7803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B31DDA2D-AF3D-42BC-9476-772CD65C7803}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B31DDA2D-AF3D-42BC-9476-772CD65C7803}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B31DDA2D-AF3D-42BC-9476-772CD65C7803}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

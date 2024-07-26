@@ -94,6 +94,7 @@ namespace HotelServices
             #region repositories
             builder.Services.AddScoped<IRepository<int, Room>, RoomRepository>();
             builder.Services.AddScoped<IRepository<int, Hotel>, HotelRepository>();
+            builder.Services.AddScoped<IRepository<int,Amenity>,AmenitiesRepository>();
             #endregion
 
             #region services
@@ -131,6 +132,7 @@ namespace HotelServices
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseHttpLogging();
+            app.UseWebSockets();
             app.MapControllers();
 
 

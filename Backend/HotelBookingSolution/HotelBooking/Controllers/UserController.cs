@@ -84,5 +84,49 @@ namespace HotelBooking.Controllers
             }
         }
 
+        [HttpPost("DeactivateUser/{userId}")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<User>> DeactivateUser(int userId)
+        {
+            try
+            {
+                User result = await _userServices2.DeactivateUser(Convert.ToInt32(userId));
+                return Ok(result);
+            }
+            catch(NoSuchUserException ex)
+            {
+                _logger.LogError(ex, "Deactivation failed for user: {UserID} because of invalid UserID", userId);
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorModel(501, ex.Message));
+            }
+        }
+
+        [HttpPost("IsActive/{userId}")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<bool>> IsActive(int userId)
+        {
+            try
+            {
+                var result = await _userServices2.IsActivated(Convert.ToInt32(userId));
+                return Ok(result);
+            }
+            catch (NoSuchUserException ex)
+            {
+                _logger.LogError(ex, "Deactivation failed for user: {UserID} because of invalid UserID", userId);
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorModel(501, ex.Message));
+            }
+        }
+
     }
 }

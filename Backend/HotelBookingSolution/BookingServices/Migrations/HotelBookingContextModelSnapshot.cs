@@ -83,7 +83,7 @@ namespace BookingServices.Migrations
 
                     b.HasIndex("BookingId");
 
-                    b.ToTable("BookingDetail");
+                    b.ToTable("BookingDetails");
                 });
 
             modelBuilder.Entity("BookingServices.Models.BookingDetail", b =>

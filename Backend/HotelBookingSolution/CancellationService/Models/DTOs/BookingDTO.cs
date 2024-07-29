@@ -11,5 +11,7 @@
         public decimal TotalPrice { get; set; }
         public bool IsCancelled { get; set; }
         public bool IsPaid { get; set; }
+        public decimal Discount { get; set; }
+        public decimal FinalAmount { get; set; }
     }
 }

@@ -20,6 +20,7 @@ namespace HotelBooking.Models
         public string UserType { get; set; }
         public Gender Gender { get; set; }
         public bool IsActivated { get; set; } = true;
+        public int? CoinsEarned { get; set; }
         public int Age
         {
             get

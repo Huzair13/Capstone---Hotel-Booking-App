@@ -1,4 +1,5 @@
 ﻿using HotelBooking.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using RatingServices.Interfaces;
@@ -23,6 +24,7 @@ namespace RatingServices.Controllers
         }
 
         // Add a rating
+        [Authorize]
         [HttpPost("AddRating")]
         [ProducesResponseType(typeof(Rating), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -45,6 +47,7 @@ namespace RatingServices.Controllers
         }
 
         // Update a rating
+        [Authorize]
         [HttpPut("updateRating/{ratingId}")]
         [ProducesResponseType(typeof(Rating), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -66,6 +69,7 @@ namespace RatingServices.Controllers
         }
 
         // Delete a rating
+        [Authorize]
         [HttpDelete("DeleteRating/{ratingId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -86,6 +90,7 @@ namespace RatingServices.Controllers
         }
 
         // Get all ratings
+        [Authorize]
         [HttpGet("GetAllRatings")]
         [ProducesResponseType(typeof(IEnumerable<Rating>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -104,11 +109,12 @@ namespace RatingServices.Controllers
         }
 
         // Get a rating by ID
+        [Authorize]
         [HttpGet("GetRatingsByID/{ratingId}")]
         [ProducesResponseType(typeof(Rating), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetRatingById(int ratingId)
+        public async Task<ActionResult<Rating>> GetRatingById(int ratingId)
         {
             try
             {
@@ -126,10 +132,31 @@ namespace RatingServices.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("GetRatingByHotelID/{hotelID}")]
+        [ProducesResponseType(typeof(Rating), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Rating>> GetRatingByHotelID(int hotelID)
+        {
+            try
+            {
+                var rating = await _ratingService.GetRatingsByHotelIdAsync(hotelID);
+                if (rating == null)
+                {
+                    return NotFound(new ErrorModel(404, "Rating not found"));
+                }
+                return Ok(rating);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving the rating");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorModel(500, ex.Message));
+            }
+        }
+
         private int GetCurrentUserId()
         {
-            // Replace this with actual logic to get the current user ID
-            // This could be from the token or the HTTP context
             int userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
             return userId;
         }

@@ -16,6 +16,12 @@ namespace BookingServices.Contexts
             modelBuilder.Entity<Booking>()
                 .Property(b => b.TotalAmount)
                 .HasColumnType("decimal(18, 2)");
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.FinalAmount)
+                .HasColumnType("decimal(18, 2)");
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.Discount)
+                .HasColumnType("decimal(18, 2)");
             modelBuilder.Entity<BookingDetail>()
                 .Property(b => b.Rent)
                 .HasColumnType("decimal(18, 2)");

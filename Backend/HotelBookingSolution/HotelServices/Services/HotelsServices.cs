@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Azure;
 using Newtonsoft.Json;
+using BookingServices.Models.DTOs;
 
 namespace HotelServices.Services
 {
@@ -223,6 +224,128 @@ namespace HotelServices.Services
                 throw;
             }
         }
+
+
+        public async Task<List<Room>> BestAvailableCombinationAsync(BestCombinationDTO bestCombinationDTO)
+        {
+            try
+            {
+                var allRooms = await _roomRepo.Get();
+                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                var hotelClient = _httpClientFactory.CreateClient("BookingService");
+
+                var formattedCheckInDate = bestCombinationDTO.CheckInDate.ToString("yyyy-MM-dd");
+                var formattedCheckOutDate = bestCombinationDTO.CheckOutDate.ToString("yyyy-MM-dd");
+
+                var requestUri = $"api/GetBookedRooms?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}";
+                hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var hotelResponse = await hotelClient.GetAsync(requestUri);
+                if (!hotelResponse.IsSuccessStatusCode)
+                {
+                    var errorMessage = await hotelResponse.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to fetch booked rooms. Status Code: {hotelResponse.StatusCode}");
+                }
+
+                var jsonResponse = await hotelResponse.Content.ReadAsStringAsync();
+                var bookedRooms = JsonConvert.DeserializeObject<List<int>>(jsonResponse);
+
+                // Filter out booked rooms
+                var availableRooms = allRooms
+                            .Where(r => r.HotelId == bestCombinationDTO.HotelId && !bookedRooms.Contains(r.RoomNumber))
+                            .OrderBy(r => r.AllowedNumOfGuests) 
+                            .ToList();
+
+                // Find combinations of rooms
+                var roomCombinations = FindRoomCombinations(availableRooms, bestCombinationDTO.NumOfGuests, bestCombinationDTO.NumOfRooms);
+
+                // Select the best combination with the minimum total capacity
+                var bestCombination = roomCombinations
+                    .OrderBy(c => c.Sum(r => r.AllowedNumOfGuests))
+                    .FirstOrDefault();
+
+                return bestCombination;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while checking hotel availability");
+                throw;
+            }
+        }
+
+
+        public async Task<bool> CheckAvailabilityAsync(BestCombinationDTO bestCombinationDTO)
+        {
+            try
+            {
+                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                var hotelClient = _httpClientFactory.CreateClient("BookingService");
+
+                var formattedCheckInDate = bestCombinationDTO.CheckInDate.ToString("yyyy-MM-dd");
+                var formattedCheckOutDate = bestCombinationDTO.CheckOutDate.ToString("yyyy-MM-dd");
+
+                var requestUri = $"api/GetBookedRooms?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}";
+                hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var hotelResponse = await hotelClient.GetAsync(requestUri);
+                if (!hotelResponse.IsSuccessStatusCode)
+                {
+                    var errorMessage = await hotelResponse.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to fetch booked rooms. Status Code: {hotelResponse.StatusCode}");
+                }
+
+                var jsonResponse = await hotelResponse.Content.ReadAsStringAsync();
+                var bookedRooms = JsonConvert.DeserializeObject<List<int>>(jsonResponse);
+
+                var allRooms = await _roomRepo.Get();
+
+                // Filter out booked rooms
+                var availableRooms = allRooms
+                    .Where(r => r.HotelId == bestCombinationDTO.HotelId && !bookedRooms.Contains(r.RoomNumber))
+                    .OrderByDescending(r => r.AllowedNumOfGuests)
+                    .ToList();
+
+                // Find combinations of rooms
+                var roomCombinations = FindRoomCombinations(availableRooms, bestCombinationDTO.NumOfGuests, bestCombinationDTO.NumOfRooms);
+
+                return roomCombinations.Any();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while checking hotel availability");
+                throw;
+            }
+        }
+
+        private List<List<Room>> FindRoomCombinations(List<Room> rooms, int numberOfGuests, int numberOfRooms)
+        {
+            var results = new List<List<Room>>();
+            FindCombinations(rooms, numberOfGuests, numberOfRooms, new List<Room>(), results);
+            return results;
+        }
+
+        private void FindCombinations(List<Room> rooms, int numberOfGuests, int numberOfRooms, List<Room> current, List<List<Room>> results)
+        {
+            if (current.Count == numberOfRooms)
+            {
+                if (current.Sum(r => r.AllowedNumOfGuests) >= numberOfGuests)
+                {
+                    results.Add(new List<Room>(current));
+                }
+                return;
+            }
+
+            for (int i = 0; i < rooms.Count; i++)
+            {
+                var room = rooms[i];
+                current.Add(room);
+                FindCombinations(rooms.Skip(i + 1).ToList(), numberOfGuests, numberOfRooms, current, results);
+                current.RemoveAt(current.Count - 1);
+            }
+        }
+
 
         //GET AVAILABLE ROOMS 
         public async Task<List<RoomDTO>> GetAvailableRoomsAsync(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
@@ -453,6 +576,56 @@ namespace HotelServices.Services
                 throw;
             }
         }
+
+        public async Task<HotelDetailsDTO> GetAllHotelsRoomsAndAmenitiesAsync()
+        {
+            try
+            {
+                var hotels = await _hotelRepo.Get();
+                var rooms = await _roomRepo.Get();
+                var amenities = await _amenityRepo.Get();
+
+                var hotelDTOs = new List<HotelReturnDTO>();
+                foreach (var hotel in hotels)
+                {
+                    var hotelDTO = await MapHotelToHotelReturnDTO(hotel);
+                    hotelDTOs.Add(hotelDTO);
+                }
+
+                var roomDTOs = rooms
+                    .Where(r => !r.IsDeleted) // Filter out deleted rooms
+                    .Select(r => new RoomDTO
+                    {
+                        IsDeleted = r.IsDeleted,
+                        RoomNumber = r.RoomNumber,
+                        RoomType = r.RoomType,
+                        RoomFloor = r.RoomFloor,
+                        AllowedNumOfGuests = r.AllowedNumOfGuests,
+                        Rent = r.Rent,
+                        HotelId = r.HotelId
+                    }).ToList();
+
+                var amenityDTOs = amenities
+                    .Select(a => new AmenityDTO
+                    {
+                        Id = a.Id,
+                        Name = a.Name
+                    }).ToList();
+
+                return new HotelDetailsDTO
+                {
+                    Hotel = hotelDTOs,
+                    Rooms = roomDTOs,
+                    Amenities = amenityDTOs
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all hotels, rooms, and amenities");
+                throw;
+            }
+        }
+
 
         //DELETE AMENITIES
         public async Task<HotelReturnDTO> DeleteAmenityFromHotelAsync(DeleteAmenityDTO deleteAmenityDTO)

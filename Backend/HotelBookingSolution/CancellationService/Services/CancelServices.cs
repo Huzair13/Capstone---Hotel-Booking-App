@@ -60,7 +60,7 @@ namespace CancellationService.Services
 
                 // Calculate refund amount based on cancellation time
                 decimal refundPercentage = GetRefundPercentage(bookingResponseByID.CheckInDate, DateTime.Now);
-                decimal refundAmount = bookingResponseByID.TotalPrice * refundPercentage / 100;
+                decimal refundAmount = bookingResponseByID.FinalAmount * refundPercentage / 100;
 
 
                 Refund refund = new Refund()
@@ -195,7 +195,10 @@ namespace CancellationService.Services
 
         private async Task DeactivateUser(int userId)
         {
+            var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
             var userClient = _httpClientFactory.CreateClient("UserService");
+            userClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var deactivateResponse = await userClient.PostAsync($"DeactivateUser/{userId}", null);
             if (!deactivateResponse.IsSuccessStatusCode)
             {

@@ -9,16 +9,25 @@ namespace HotelBooking.Services
 {
     public class UserLoginAndRegisterServices : IUserLoginAndRegisterServices
     {
+
+        //INITIALIZATION
         private readonly IRepository<int, UserDetails> _userDetailsRepo;
         private readonly IRepository<int, User> _userRepo;
         private readonly ITokenServices _tokenServices;
+        private readonly ILogger<UserLoginAndRegisterServices> _logger;
 
-        public UserLoginAndRegisterServices(IRepository<int, UserDetails> userDetailsRepo, IRepository<int, User> userRepo, ITokenServices tokenServices)
+        //DEPENDENCY INJECTION
+        public UserLoginAndRegisterServices(IRepository<int, UserDetails> userDetailsRepo, 
+                                            IRepository<int, User> userRepo, 
+                                            ITokenServices tokenServices, ILogger<UserLoginAndRegisterServices> logger)
         {
             _userRepo = userRepo;
             _userDetailsRepo = userDetailsRepo;
             _tokenServices = tokenServices;
+            _logger = logger;
         }
+
+        //LOGIN 
         public async Task<LoginReturnDTO> Login(UserLoginDTO loginDTO)
         {
             try
@@ -39,24 +48,17 @@ namespace HotelBooking.Services
                 }
                 throw new UnauthorizedUserException("Invalid username or password");
             }
-            catch (Exception ex)
+            catch (UnauthorizedUserException ex)
             {
-                throw new UnauthorizedUserException("Invalid username or password");
+                throw ex;
             }
-
-        }
-
-        private async Task<LoginReturnDTO> MapUserToLoginReturn(User user)
-        {
-            LoginReturnDTO returnDTO = new LoginReturnDTO
+            catch(Exception ex)
             {
-                userID = user.Id,
-                Role = user.UserType,
-                Token = await _tokenServices.GenerateToken(user)
-            };
-            return returnDTO;
+                throw ex;
+            }
         }
 
+        //COMPARE PASSWORD (LOGIN)
         private bool ComparePassword(byte[] encrypterPass, byte[] password)
         {
             for (int i = 0; i < encrypterPass.Length; i++)
@@ -68,6 +70,8 @@ namespace HotelBooking.Services
             }
             return true;
         }
+
+        //REGISTER
 
         public async Task<RegisterReturnDTO> Register(UserRegisterInputDTO userInputDTO)
         {
@@ -92,7 +96,7 @@ namespace HotelBooking.Services
             }
             catch (UserAlreadyExistsException ex)
             {
-                //_logger.LogError(ex, "User Already Exists Error at Student Register service");
+                _logger.LogError(ex, "User Already Exists Error at Student Register service");
                 throw new UserAlreadyExistsException(ex.Message);
             }
             catch (Exception)
@@ -104,6 +108,7 @@ namespace HotelBooking.Services
         }
 
 
+        //REVERT ACTION
         private async Task RevertAction(User? user, UserDetails? userDetail)
         {
             if (user != null)
@@ -112,6 +117,7 @@ namespace HotelBooking.Services
                 await RevertUserDetailsInsert(userDetail);
         }
 
+        //MAP USER TO REGISTER RETURN DTO
         private async Task<RegisterReturnDTO> MapUserToRegisterReturnDTO(User user)
         {
             RegisterReturnDTO userReturn = new RegisterReturnDTO();
@@ -124,6 +130,7 @@ namespace HotelBooking.Services
             return userReturn;
         }
 
+        //MAP USER DTO TO USER DETAILS
         private async Task<UserDetails> MapUserDTOToUserDetails(UserRegisterInputDTO userInputDTO)
         {
             UserDetails userDetails = new UserDetails();
@@ -135,16 +142,34 @@ namespace HotelBooking.Services
             return userDetails;
         }
 
+        //REVERT --- USERDETAILS
         private async Task RevertUserDetailsInsert(UserDetails userDetails)
         {
             await _userDetailsRepo.Delete(userDetails.UserId);
         }
 
+        //REVERT - USER 
         private async Task RevertUserInsert(User user)
         {
             await _userRepo.Delete(user.Id);
         }
 
+        // MAPPPERS
+
+        //MAP USER TO LOGIN RETURN DTO
+        private async Task<LoginReturnDTO> MapUserToLoginReturn(User user)
+        {
+            LoginReturnDTO returnDTO = new LoginReturnDTO
+            {
+                userID = user.Id,
+                Role = user.UserType,
+                Token = await _tokenServices.GenerateToken(user)
+            };
+            return returnDTO;
+        }
+
+
+        //MAP USER DTO TO USER
         private async Task<User> MapUserDTOToUser(UserRegisterInputDTO userDTO)
         {
             User user = new User();

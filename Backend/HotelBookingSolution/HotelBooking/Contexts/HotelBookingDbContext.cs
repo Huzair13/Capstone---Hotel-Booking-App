@@ -1,4 +1,5 @@
-﻿using HotelBooking.Models;
+﻿using AuthenticationServices.Models;
+using HotelBooking.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
@@ -12,6 +13,7 @@ namespace HotelBooking.Contexts
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserDetails> UsersDetails { get; set; }
+        public DbSet<Request> Requests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

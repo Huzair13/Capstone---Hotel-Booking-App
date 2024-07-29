@@ -66,3 +66,5 @@ C:\Users\VC\source\repos\Capstone (MicroServices)\HotelBookingSolution\HotelBook
 C:\Users\VC\source\repos\Capstone (MicroServices)\HotelBookingSolution\HotelBooking\obj\Debug\net6.0\AuthenticationServices.pdb
 C:\Users\VC\source\repos\Capstone (MicroServices)\HotelBookingSolution\HotelBooking\obj\Debug\net6.0\AuthenticationServices.genruntimeconfig.cache
 C:\Users\VC\source\repos\Capstone (MicroServices)\HotelBookingSolution\HotelBooking\obj\Debug\net6.0\ref\AuthenticationServices.dll
+C:\Users\VC\source\repos\Capstone (MicroServices)\HotelBookingSolution\HotelBooking\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\VC\source\repos\Capstone (MicroServices)\HotelBookingSolution\HotelBooking\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll

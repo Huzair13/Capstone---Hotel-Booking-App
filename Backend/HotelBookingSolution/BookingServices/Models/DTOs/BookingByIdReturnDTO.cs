@@ -11,5 +11,8 @@
         public decimal TotalPrice { get; set; }
         public bool IsPaid { get; set; } = false;
         public bool IsCancelled { get; set; } = false;
+        public decimal Discount { get; set; }
+        public decimal FinalAmount { get; set; }
+        public List<int> RoomNumbers { get; set; }
     }
 }

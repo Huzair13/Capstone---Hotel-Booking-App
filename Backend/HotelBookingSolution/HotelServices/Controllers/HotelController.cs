@@ -1,4 +1,5 @@
-﻿using HotelBooking.Models;
+﻿using BookingServices.Models.DTOs;
+using HotelBooking.Models;
 using HotelServices.Exceptions;
 using HotelServices.Interfaces;
 using HotelServices.Models;
@@ -31,6 +32,7 @@ namespace HotelServices.Controllers
         }
 
         // Add Hotel
+        [Authorize(Roles ="Admin")]
         [HttpPost("AddHotel")]
         [ProducesResponseType(typeof(HotelReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -83,6 +85,7 @@ namespace HotelServices.Controllers
         }
 
         // Get All Hotels
+        [Authorize]
         [HttpGet("GetAllAmenities")]
         [ProducesResponseType(typeof(IEnumerable<Amenity>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -105,7 +108,32 @@ namespace HotelServices.Controllers
             }
         }
 
+        // Get Hotel Details
+        [Authorize]
+        [HttpGet("GetAllHotelDetails")]
+        [ProducesResponseType(typeof(IEnumerable<HotelDetailsDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<HotelDetailsDTO>>> GetAllHotelDetails()
+        {
+            try
+            {
+                var result = await _hotelServices.GetAllHotelsRoomsAndAmenitiesAsync();
+                return Ok(result);
+            }
+            catch (NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Details Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all details.");
+                return StatusCode(500, new ErrorModel(500, "An error occurred while processing your request."));
+            }
+        }
+
         // Get All Hotels
+        [Authorize]
         [HttpGet("GetAllHotels")]
         [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -128,7 +156,7 @@ namespace HotelServices.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("AddAmenitiesToHotel")]
         [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -151,6 +179,7 @@ namespace HotelServices.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("AddAmenity")]
         [ProducesResponseType(typeof(List<AmenityDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -168,6 +197,7 @@ namespace HotelServices.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("DeleteAmenityFromHotel")]
         [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -192,6 +222,7 @@ namespace HotelServices.Controllers
 
 
         //UPDATE HOTEL AVERAGE RATING
+        [Authorize]
         [HttpPut("UpdateAverageRatings")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -215,6 +246,7 @@ namespace HotelServices.Controllers
         }
 
         // Get All Rooms
+        [Authorize]
         [HttpGet("GetAllRooms")]
         [ProducesResponseType(typeof(List<HotelReturnDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -238,6 +270,7 @@ namespace HotelServices.Controllers
         }
 
         // Get All Hotels
+        [Authorize]
         [HttpGet("GetAvailableHotelsRooms")]
         [ProducesResponseType(typeof(List<RoomDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -262,6 +295,57 @@ namespace HotelServices.Controllers
         }
 
         // Get All Hotels
+        [Authorize]
+        [HttpPost("CheckHotelAvailability")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<bool>> CheckHotelAvailability([FromBody]BestCombinationDTO bestCombinationDTO)
+        {
+            try
+            {
+                var result = await _hotelServices.CheckAvailabilityAsync(bestCombinationDTO);
+                return Ok(result);
+            }
+            catch (NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Rooms Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all Available rooms.");
+                return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. + {ex.Message}"));
+            }
+        }
+
+        // Get All Hotels
+        [Authorize]
+        [HttpPost("BestRoomCombination")]
+        [ProducesResponseType(typeof(List<List<Room>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<List<Room>>>> BestRoomCombination(BestCombinationDTO bestCombinationDTO)
+        {
+            try
+            {
+                var result = await _hotelServices.BestAvailableCombinationAsync(bestCombinationDTO);
+                return Ok(result);
+            }
+            catch (NoSuchHotelException ex)
+            {
+                _logger.LogError(ex, "Rooms Not found");
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all Available rooms.");
+                return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. + {ex.Message}"));
+            }
+        }
+
+        // Get All Hotels
+        [Authorize]
         [HttpGet("GetAvailableHotelsRoomsByDate")]
         [ProducesResponseType(typeof(List<RoomDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -286,6 +370,7 @@ namespace HotelServices.Controllers
         }
 
         // Get Hotel by ID
+        [Authorize]
         [HttpGet("GetHotelByID/{hotelId}")]
         [ProducesResponseType(typeof(HotelReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -310,6 +395,7 @@ namespace HotelServices.Controllers
         }
 
         // Get Hotel by Name
+        [Authorize]
         [HttpGet("GetHotelByName/{hotelName}")]
         [ProducesResponseType(typeof(HotelReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -334,6 +420,7 @@ namespace HotelServices.Controllers
         }
 
         // Add Room to Hotel
+        [Authorize(Roles = "Admin")]
         [HttpPost("AddRoomToHotel/{hotelId}")]
         [ProducesResponseType(typeof(HotelReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]

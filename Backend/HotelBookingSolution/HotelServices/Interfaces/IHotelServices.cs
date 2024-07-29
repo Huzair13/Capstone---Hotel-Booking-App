@@ -1,4 +1,5 @@
-﻿using HotelServices.Models;
+﻿using BookingServices.Models.DTOs;
+using HotelServices.Models;
 using HotelServices.Models.DTOs;
 
 namespace HotelServices.Interfaces
@@ -18,6 +19,8 @@ namespace HotelServices.Interfaces
         public Task<AmenityDTO> AddAmenityAsync(AmenityDTO amenityDTO);
         public Task<HotelReturnDTO> DeleteAmenityFromHotelAsync(DeleteAmenityDTO deleteAmenityDTO);
         public Task<IEnumerable<Amenity>> GetAllAmenities();
-
+        public Task<HotelDetailsDTO> GetAllHotelsRoomsAndAmenitiesAsync();
+        public Task<bool> CheckAvailabilityAsync(BestCombinationDTO bestCombinationDTO);
+        public Task<List<Room>> BestAvailableCombinationAsync(BestCombinationDTO bestCombinationDTO);
     }
 }

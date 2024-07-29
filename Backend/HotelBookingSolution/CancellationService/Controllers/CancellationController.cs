@@ -1,6 +1,7 @@
 ﻿using CancellationService.Interfaces;
 using CancellationService.Models.DTOs;
 using HotelBooking.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -21,6 +22,7 @@ namespace CancellationService.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpPost("CancelBooking/{bookingID}")]
         [ProducesResponseType(typeof(CancelReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]

@@ -11,5 +11,7 @@ public class Booking
     public decimal TotalAmount { get; set; }
     public bool IsPaid { get; set; } = false;
     public bool IsCancelled { get; set; } = false;
+    public decimal Discount {  get; set; }
+    public decimal FinalAmount { get; set; }
     public ICollection<BookingDetail> BookingDetails { get; set; } // Navigation property for BookingDetails
 }

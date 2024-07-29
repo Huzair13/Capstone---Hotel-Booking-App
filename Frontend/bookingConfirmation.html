@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h3>Booking Confirmation</h3>
+        <div id="bookingConfirmation">
+            <!-- Booking confirmation details will be populated here -->
+        </div>
+    </div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const bookingId = params.get('bookingId');
+        const token = localStorage.getItem('token');
+        
+        // Fetch booking details using the bookingId
+        fetch(`https://localhost:7263/api/GetBookingById/${bookingId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization':  `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            document.getElementById('bookingConfirmation').innerHTML = `
+                <p>Booking ID: ${data.bookingId}</p>
+                <p>Hotel ID: ${data.hotelId}</p>
+                <p>User ID: ${data.userId}</p>
+                <p>Check-in Date: ${data.checkInDate}</p>
+                <p>Check-out Date: ${data.checkOutDate}</p>
+                <p>Number of Guests: ${data.numberOfGuests}</p>
+                <p>Total Price: $${data.totalPrice}</p>
+                <p>Allocated Rooms: ${data.roomNumbers.join(', ')}</p>
+            `;
+        })
+        .catch(error => console.error('Error:', error));
+    </script>
+</body>
+
+</html>

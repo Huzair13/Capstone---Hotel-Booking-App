@@ -1,0 +1,53 @@
+.container-fluid {
+    min-height: 100vh; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+body{
+    /* background: #ffc39b; */
+    background: #788D92;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.login-button{
+    /* background-color: #698474; */
+    background-color: #124E66;
+    border-radius: 100px;
+    color: white;
+    font-size: small;
+    font-weight: bolder;
+}
+
+.login-button:hover {
+    /* background-color: #4c5951; */
+    background-color: #0d3c4f;
+    color: white;
+}
+
+.user-icon {
+    /* color: #698474; */
+    color: #124E66;
+}
+
+.lock-icon{
+    /* color: #698474; */
+    color: #124E66;
+}
+
+input::placeholder {
+    font-size: 90%; 
+}
+
+
+.loading-model {
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background-color: transparent; 
+    border: none;
+    max-width: 350px; 
+    max-height: 350px; 
+    box-shadow: none;
+}

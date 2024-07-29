@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Bookings</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .booking-card {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .booking-card h5 {
+            margin-bottom: 15px;
+        }
+
+        .cancel-btn {
+            margin-top: 10px;
+        }
+
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-cancelled {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h3>User Bookings</h3>
+        <div id="bookingsContainer">
+            <!-- Bookings will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const userId = getUserIdFromToken(token);
+
+        // Fetch bookings for the user
+        fetch(`https://localhost:7263/api/GetBookingByUser`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const bookingsContainer = document.getElementById('bookingsContainer');
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(booking => {
+                    // Create a booking card
+                    const bookingCard = document.createElement('div');
+                    bookingCard.className = 'booking-card';
+                    const statusClass = booking.isCancelled ? 'status-cancelled' : 'status-active';
+                    const cancelButton = booking.isCancelled ? '' : `<button class="btn btn-danger cancel-btn" data-booking-id="${booking.bookingId}">Cancel Booking</button>`;
+                    
+                    bookingCard.innerHTML = `
+                        <h5>Booking ID: ${booking.bookingId}</h5>
+                        <p><strong>Hotel ID:</strong> ${booking.hotelId}</p>
+                        <p><strong>Check-in Date:</strong> ${booking.checkInDate}</p>
+                        <p><strong>Check-out Date:</strong> ${booking.checkOutDate}</p>
+                        <p><strong>Number of Guests:</strong> ${booking.numberOfGuests}</p>
+                        <p><strong>Total Price:</strong> $${booking.totalPrice}</p>
+                        <p><strong>Discount:</strong> $${booking.discount}</p>
+                        <p><strong>Final Amount:</strong> $${booking.finalAmount}</p>
+                        <p><strong>Allocated Rooms:</strong> ${booking.roomNumbers ? booking.roomNumbers.join(', ') : 'Not available'}</p>
+                        <p><strong>Status:</strong> <span class="${statusClass}">${booking.isCancelled ? 'Cancelled' : 'Active'}</span></p>
+                        ${cancelButton}
+                    `;
+                    bookingsContainer.appendChild(bookingCard);
+                });
+            } else {
+                bookingsContainer.innerHTML = '<p>No bookings found for this user.</p>';
+            }
+
+            // Add event listeners for cancel buttons
+            document.querySelectorAll('.cancel-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const bookingId = event.target.getAttribute('data-booking-id');
+                    handleCancelBooking(bookingId);
+                });
+            });
+        })
+        .catch(error => console.error('Error:', error));
+
+        // Function to decode JWT and extract userId if needed
+        function getUserIdFromToken(token) {
+            if (!token) return null;
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload).name; // Assuming userId is stored in 'name' claim
+        }
+
+        // Function to handle booking cancellation
+        function handleCancelBooking(bookingId) {
+            fetch(`https://localhost:7263/api/GetUserCancellationCount`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(cancellationCount => {
+                if (cancellationCount > 2) {
+                    if (confirm('If you cancel more than 2 times, your account will be temporarily deactivated. Do you want to proceed?')) {
+                        if (confirm('Are you sure you want to cancel this booking?')) {
+                            cancelBooking(bookingId);
+                        }
+                    }
+                } else {
+                    if (confirm('Are you sure you want to cancel this booking?')) {
+                        cancelBooking(bookingId);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to cancel booking
+        function cancelBooking(bookingId) {
+            fetch(`https://localhost:7276/api/CancelBooking/${bookingId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Booking cancelled successfully.');
+                window.location.reload(); 
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+
+</html>

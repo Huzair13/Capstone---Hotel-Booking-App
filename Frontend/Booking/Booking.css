@@ -1,0 +1,55 @@
+body {
+    padding-top: 56px;
+}
+
+#hotelList {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#bookingResult {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.carousel-inner img {
+    height: 300px; /* Adjust the height of images */
+    object-fit: cover; /* Ensure images cover the area */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    border-radius: 50%; /* Circular controls */
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 1rem;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.alert-info {
+    font-size: 1rem;
+}

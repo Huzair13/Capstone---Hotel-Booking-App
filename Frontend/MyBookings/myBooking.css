@@ -1,0 +1,26 @@
+.booking-card {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.booking-card h5 {
+    margin-bottom: 15px;
+}
+
+.cancel-btn {
+    margin-top: 10px;
+}
+
+.status-active {
+    color: green;
+    font-weight: bold;
+}
+
+.status-cancelled {
+    color: red;
+    font-weight: bold;
+}

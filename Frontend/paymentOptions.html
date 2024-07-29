@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Options</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h3>Select Payment Method</h3>
+        <div id="paymentOptions">
+            <button id="codButton" class="btn btn-primary">Cash On Delivery (COD)</button>
+            <button id="onlinePaymentButton" class="btn btn-primary">Online Payment</button>
+        </div>
+    </div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const hotelId = params.get('hotelId');
+        const checkInDate = params.get('checkInDate');
+        const checkOutDate = params.get('checkOutDate');
+        const numOfGuests = params.get('numOfGuests');
+        const numOfRooms = params.get('numOfRooms');
+        const totalAmount = params.get('totalAmount');
+        const userId = localStorage.getItem('userId');
+
+        const token = localStorage.getItem('token');
+
+        document.getElementById('codButton').addEventListener('click', () => {
+            fetch('https://localhost:7263/api/AddBooking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization':  `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    HotelId: parseInt(hotelId),
+                    CheckInDate: checkInDate,
+                    CheckOutDate: checkOutDate,
+                    NumberOfGuests: parseInt(numOfGuests),
+                    NumberOfRooms: parseInt(numOfRooms),
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Booking successful!');
+                // Redirect to booking confirmation page with the booking ID
+                window.location.href = `bookingConfirmation.html?bookingId=${data.bookingId}`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('onlinePaymentButton').addEventListener('click', () => {
+            alert('Online Payment not implemented yet. Proceeding to booking...');
+            document.getElementById('codButton').click(); // Simulate COD booking for now
+        });
+    </script>
+</body>
+
+</html>

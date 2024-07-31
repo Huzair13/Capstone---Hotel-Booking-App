@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Amenities from Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Remove Amenities from Hotel</h2>
+        <div id="alertPlaceholder"></div>
+        <form id="amenitiesForm">
+            <div class="mb-3" id="amenitiesList"></div>
+            <button type="submit" class="btn btn-danger">Remove Amenities</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hotelId = urlParams.get('hotelId');
+
+            if (!hotelId) {
+                showAlert('Hotel ID is missing in the URL.', 'danger');
+                return;
+            }
+
+            function fetchHotelAndAmenities() {
+                Promise.all([
+                    fetch(`https://localhost:7257/api/GetAllAmenities`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }).then(response => response.json()),
+                    fetch(`https://localhost:7257/api/GetHotelByID/${hotelId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }).then(response => response.json())
+                ])
+                .then(([allAmenities, hotelDetails]) => {
+                    const hotelAmenityIds = hotelDetails.amenities;
+                    const hotelAmenities = allAmenities.filter(amenity => hotelAmenityIds.includes(amenity.id));
+                    displayAmenities(hotelAmenities);
+                })
+                .catch(error => {
+                    showAlert('An error occurred while fetching amenities or hotel details.', 'danger');
+                });
+            }
+
+            function displayAmenities(amenities) {
+                const amenitiesList = document.getElementById('amenitiesList');
+                amenitiesList.innerHTML = '';
+
+                amenities.forEach(amenity => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" value="${amenity.id}" id="amenity${amenity.id}">
+                        <label class="form-check-label" for="amenity${amenity.id}">
+                            ${amenity.name}
+                        </label>
+                    `;
+                    amenitiesList.appendChild(div);
+                });
+            }
+
+            document.getElementById('amenitiesForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const selectedAmenities = [];
+                document.querySelectorAll('#amenitiesList input:checked').forEach(checkbox => {
+                    selectedAmenities.push(checkbox.value);
+                });
+
+                if (selectedAmenities.length === 0) {
+                    showAlert('No amenities were selected.', 'danger');
+                    return;
+                }
+
+                const deleteAmenitiesFromHotelDTO = {
+                    HotelID: hotelId,
+                    AmenityIds: selectedAmenities
+                };
+
+                fetch('https://localhost:7257/api/DeleteAmenityFromHotel', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(deleteAmenitiesFromHotelDTO)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(error => Promise.reject(error));
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    showAlert('Amenities removed successfully!', 'success');
+                })
+                .catch(error => {
+                    const errorMessage = error && error.Message ? error.Message : 'An error occurred while removing amenities.';
+                    showAlert(errorMessage, 'danger');
+                });
+            });
+
+            function showAlert(message, type) {
+                const alertPlaceholder = document.getElementById('alertPlaceholder');
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} alert-dismissible fade show`;
+                alert.role = 'alert';
+                alert.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                alertPlaceholder.innerHTML = '';
+                alertPlaceholder.appendChild(alert);
+            }
+
+            fetchHotelAndAmenities();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

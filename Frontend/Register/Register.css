@@ -6,22 +6,22 @@
 }
 body {
     /* background: #FFD3B6; */
-    background-color: #ffc39b;
+    background-color: #788D92;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 .login-button {
-    background-color: #698474;
+    background-color: #124E66;
     color: white;
     border-radius: 100px;
     font-size: small;
     font-weight: bolder;
 }
 .login-button:hover {
-    background-color: #4c5951;
+    background-color: #0d3c4f;
     color: white;
 }
 .icon-color {
-    color: #698474;
+    color: #124E66;
 }
 input::placeholder {
     font-size: 90%;

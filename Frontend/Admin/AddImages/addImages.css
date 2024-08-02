@@ -1,0 +1,67 @@
+body {
+    background: linear-gradient(135deg, #D3D9D4, #748D92, #124E66, #2E3944);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-size: 400% 400%; 
+    animation: gradientBG 15s ease infinite;
+    min-height: 100vh; 
+    margin: 0; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes gradientBG {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+}
+
+h2 {
+    font-family: 'Arial', sans-serif;
+    color: #343a40;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.form-label {
+    font-weight: bold;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.custom-file-input:lang(en)~.custom-file-label::after {
+    content: "Browse";
+}
+
+#alertPlaceholder {
+    margin-bottom: 20px;
+}
+
+.custom-file-input {
+    cursor: pointer;
+}
+
+.custom-file-label::after {
+    content: "Browse";
+}

@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getBearerToken() {
-        return localStorage.getItem('token'); // Adjust according to your storage key
+        return localStorage.getItem('token'); 
     }
 
     async function fetchAllHotels() {

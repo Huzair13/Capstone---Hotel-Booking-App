@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .active-tab {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Requests Management</h2>
+        <div class="btn-group mb-3" role="group" aria-label="Filter Requests">
+            <button type="button" class="btn btn-primary filter-btn" data-status="All">All Requests</button>
+            <button type="button" class="btn btn-secondary filter-btn" data-status="Rejected">Rejected Requests</button>
+            <button type="button" class="btn btn-secondary filter-btn" data-status="Accepted">Accepted Requests</button>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User ID</th>
+                    <th>Reason</th>
+                    <th id="requestStatus">Status</th>
+                    <th id="actionsTable">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+                <!-- Rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to <span id="actionType"></span> this request?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmAction">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const apiUrl = 'https://localhost:7032';
+        let currentAction = '';
+        let requestIdToProcess = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchRequests('All');
+
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-tab'));
+                    e.target.classList.add('active-tab');
+                    fetchRequests(e.target.getAttribute('data-status'));
+                });
+            });
+
+            document.getElementById('confirmAction').addEventListener('click', () => {
+                if (currentAction === 'Accept') {
+                    handleRequest('AcceptRequest');
+                } else if (currentAction === 'Reject') {
+                    handleRequest('RejectRequest');
+                }
+            });
+        });
+
+        function fetchRequests(status) {
+            fetch(`${apiUrl}/GetAllRequests`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                const filteredData = status === 'All' ? data.filter(req => req.status === "Requested") : data.filter(req => req.status === status);
+                displayRequests(filteredData);
+            })
+            .catch(error => console.error('Error fetching requests:', error));
+        }
+
+        function displayRequests(requests) {
+            const tableBody = document.getElementById('requestsTableBody');
+            tableBody.innerHTML = '';
+            requests.forEach(request => {
+                let actionButtons = '';
+                if (request.status === 'Requested') {
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm" onclick="showConfirmation(${request.id}, 'Accept')">Accept</button>
+                        <button class="btn btn-danger btn-sm" onclick="showConfirmation(${request.id}, 'Reject')">Reject</button>
+                    `;
+                }
+
+                if(request.status === 'Accepted' || request.status === 'Rejected'){
+                    document.getElementById('actionsTable').style.display='none';
+                    tableBody.innerHTML += `
+                    <tr>
+                        <td>${request.id}</td>
+                        <td>${request.userId}</td>
+                        <td>${request.reason}</td>
+                        <td>${request.status}</td>
+                    </tr>
+                `;
+                }  
+                else{
+                    tableBody.innerHTML += `
+                    <tr>
+                        <td>${request.id}</td>
+                        <td>${request.userId}</td>
+                        <td>${request.reason}</td>
+                        <td>${request.status}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+                }
+            });
+        }
+
+        function showConfirmation(requestId, action) {
+            requestIdToProcess = requestId;
+            currentAction = action;
+            document.getElementById('actionType').textContent = action === 'Accept' ? 'accept' : 'reject';
+            const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            confirmationModal.show();
+        }
+
+        function handleRequest(endpoint) {
+            fetch(`${apiUrl}/${endpoint}?requestId=${requestIdToProcess}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(() => {
+                fetchRequests(document.querySelector('.filter-btn.active-tab')?.getAttribute('data-status') || 'All');
+                const confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+                if (confirmationModal) {
+                    confirmationModal.hide();
+                }
+            })
+            .catch(error => console.error('Error handling request:', error));
+        }
+    </script>
+</body>
+</html>

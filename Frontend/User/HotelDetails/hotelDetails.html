@@ -13,21 +13,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap"
         rel="stylesheet">
 
-    <!-- FONT AWESOME  -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
-    <!--  FONTS  -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="hotelDetails.css">
 </head>
 
 <body>
 
-    <div class="container-fluid" id="mainDiv">
+    <div class="container-fluid">
         <!-- NAVBAR -->
         <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #2E3944;color: white;">
             <div class="container-fluid">
@@ -43,12 +35,12 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3" style="font-family: 'Playfair Display', serif;">
                         <li class="nav-item m-2">
-                            <a class="nav-link" href="/User/UserHome/userHome.html"
+                            <a class="nav-link" href="/LoggedInHome/LoggedInHome.html"
                                 style="font-size: 18px; color: white;">Home</a>
                         </li>
                         <li class="nav-item m-2">
-                            <a class="nav-link" href="/User/MyBookings/myBooking.html"
-                                style="font-size: 18px; color: white;">My Bookings</a>
+                            <a class="nav-link" href="/Library/Library.html"
+                                style="font-size: 18px; color: white;">Library</a>
                         </li>
                         <li class="nav-item m-2">
                             <a class="nav-link" href="#about-section" style="font-size: 18px; color: white;">About</a>
@@ -56,8 +48,7 @@
                     </ul>
                     <ul class="navbar-nav mb-2 mb-lg-0 me-3" style="font-family: 'Playfair Display', serif;">
                         <li class="nav-item">
-                            <a class="nav-link" href="/User/Profile/profile.html"
-                                style="font-size: 18px; color: white;">
+                            <a class="nav-link" href="/Profile/Profile.html" style="font-size: 18px; color: white;">
                                 <i class="ps-4 fas fa-user-circle"></i>
                             </a>
                         </li>
@@ -90,7 +81,7 @@
                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                 <span class="visually-hidden">Next</span>
                             </button>
-                            <button type="button" class="btn viewAllBtn view-all-btn" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-primary view-all-btn" data-bs-toggle="modal"
                                 data-bs-target="#galleryModal">
                                 View All Photos
                             </button>
@@ -133,14 +124,10 @@
                                             </div>
                                             <p id="userFeedback" class="feedback-text"></p>
                                         </div>
-                                        <div
-                                            class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                                            <button id="rateButton" class="btn btn-primary mb-3 w-100">
-                                                <i class="fas fa-star me-2"></i> Rate This Hotel
-                                            </button>
-                                            <button id="updateRatingButton" class="btn btn-success w-100">
-                                                <i class="fas fa-edit me-2"></i> Edit Your Ratings
-                                            </button>
+                                        <div class="col-md-4 d-flex flex-column justify-content-center">
+                                            <button id="rateButton" class="btn btn-primary">Rate This Hotel</button>
+                                            <button id="updateRatingButton" class="btn btn-success">Edit Your
+                                                Ratings</button>
                                         </div>
                                     </div>
                                 </div>
@@ -164,28 +151,28 @@
                                                         Date</label>
                                                     <input type="date" id="checkoutDate" class="form-control">
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-md-6 col-12">
-                                                        <div class="mb-4 form-group">
+                                                <div class="row d-flex">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-4">
                                                             <label class="form-label text-dark">Number of Guests</label>
-                                                            <div class="input-group number-input">
-                                                                <button type="button" class="btn btn-secondary"
+                                                            <div class="number-input">
+                                                                <button type="button" class="btn btn-secondary "
                                                                     id="decreaseGuests">-</button>
-                                                                <input type="number" id="numGuests"
-                                                                    class="form-control text-center" value="1" min="1">
+                                                                <input type="number" id="numGuests" class="form-control"
+                                                                    value="1" min="1">
                                                                 <button type="button" class="btn btn-secondary"
                                                                     id="increaseGuests">+</button>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div class="mb-4 form-group">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-4">
                                                             <label class="form-label text-dark">Number of Rooms</label>
-                                                            <div class="input-group number-input">
+                                                            <div class="number-input">
                                                                 <button type="button" class="btn btn-secondary"
                                                                     id="decreaseRooms">-</button>
-                                                                <input type="number" id="numRooms"
-                                                                    class="form-control text-center" value="1" min="1">
+                                                                <input type="number" id="numRooms" class="form-control"
+                                                                    value="1" min="1">
                                                                 <button type="button" class="btn btn-secondary"
                                                                     id="increaseRooms">+</button>
                                                             </div>
@@ -193,17 +180,9 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="d-flex justify-content-center align-items-center">
-                                                    <button type="button"
-                                                        class="btn btn-lg rounded-pill shadow checkButton"
-                                                        id="checkAvailability">
-                                                        <span id="buttonText">Check Availability</span>
-                                                        <span id="spinner" class="spinner-border spinner-border-sm"
-                                                            role="status" aria-hidden="true"
-                                                            style="display: none;"></span>
-                                                    </button>
-                                                </div>
-
+                                                <button type="button" class="btn btn-primary"
+                                                    id="checkAvailability">Check
+                                                    Availability</button>
                                             </form>
                                         </div>
                                     </div>
@@ -214,11 +193,10 @@
                         <!-- Reviews Section -->
                         <div class="hotel-reviews mt-3 allReviewsContainer">
                             <h3 class="text-center" style="font-family: 'Playfair Display', serif;">Reviews</h3>
-                            <div id="reviewsContainer" class="row">
+                            <div id="reviewsContainer">
                                 <!-- Reviews will be populated here -->
                             </div>
-                            <a href="#" id="viewAllReviews" class="btn mt-3 viewAllReviews" style="display: none;">View
-                                All
+                            <a href="#" id="viewAllReviews" class="btn btn-primary mt-3" style="display: none;">View All
                                 Reviews</a>
                         </div>
                     </div>
@@ -239,15 +217,8 @@
                 <div class="modal-body">
                     <form id="ratingForm">
                         <div class="mb-3">
-                            <label for="ratingValue" class="form-label">Your Rating</label>
-                            <div id="emojiRating" class="d-flex justify-content-center">
-                                <span class="emoji" data-value="1">😡</span>
-                                <span class="emoji" data-value="2">😞</span>
-                                <span class="emoji" data-value="3">😐</span>
-                                <span class="emoji" data-value="4">😊</span>
-                                <span class="emoji" data-value="5">😍</span>
-                            </div>
-                            <input type="hidden" id="ratingValue" name="rating" required>
+                            <label for="ratingValue" class="form-label">Your Rating (1-5)</label>
+                            <input type="number" id="ratingValue" class="form-control" min="1" max="5" required>
                         </div>
                         <div class="mb-3">
                             <label for="ratingFeedback" class="form-label">Your Feedback (Optional)</label>
@@ -274,25 +245,14 @@
                 <div class="modal-body">
                     <form id="ratingForm">
                         <div class="mb-3">
-                            <label for="ratingUpdateValue" class="form-label">Your Rating</label>
-                            <div id="emojiRating" class="d-flex">
-                                <span class="emoji" data-value="1">😡</span>
-                                <span class="emoji" data-value="2">😞</span>
-                                <span class="emoji" data-value="3">😐</span>
-                                <span class="emoji" data-value="4">😊</span>
-                                <span class="emoji" data-value="5">😍</span>
-                            </div>
-                            <input type="hidden" id="ratingUpdateValue" name="rating" required>
+                            <label for="ratingUpdateValue" class="form-label">Your Rating (1-5)</label>
+                            <input type="number" id="ratingUpdateValue" class="form-control" min="1" max="5" required>
                         </div>
                         <div class="mb-3">
                             <label for="ratingUpdateFeedback" class="form-label">Your Feedback (Optional)</label>
                             <textarea id="ratingUpdateFeedback" class="form-control" rows="3"></textarea>
                         </div>
-                        <button type="button"
-                            class="btn btn-primary btn-lg btn-block d-flex align-items-center justify-content-center"
-                            id="submitUpdateRating">
-                            <i class="fas fa-edit me-2"></i> Edit Rating
-                        </button>
+                        <button type="button" class="btn btn-primary" id="submitUpdateRating">Edit Rating</button>
                         <p id="ratingError" class="text-danger mt-2" style="display: none;">You have already rated this
                             hotel.</p>
                     </form>
@@ -317,32 +277,6 @@
                             <!-- Thumbnails will be populated here -->
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container" id="deactivatedDiv" style="display: none;">
-        <h1>Your Account is Temporarily Deactivated</h1>
-        <p>It looks like your account is temporarily deactivated. If you believe this is a mistake or if you wish to
-            request reactivation, please click the button below.</p>
-        <button id="request-activation" onclick="requestActivation()">Request Reactivation</button>
-    </div>
-
-    <!-- Logout confirmation modal -->
-    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logoutModalLabel">Logout Confirmation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to logout?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="confirmLogoutButton" type="button" class="btn btn-danger">Logout</button>
                 </div>
             </div>
         </div>

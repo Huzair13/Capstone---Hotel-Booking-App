@@ -194,6 +194,10 @@ async function deleteHotel(hotelId) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    if(localStorage.getItem('role')!=="Admin"){
+        window.location.href="/Login/Login.html"
+    }
+
     const deleteButton = document.getElementById('confirmDeleteButton');
     function isTokenExpired(token) {
         try {
@@ -215,30 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/Login/Login.html';
     }
 
-    fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(isActive => {
-            if (!isActive) {
-                document.getElementById('deactivatedDiv').style.display = 'block';
-                document.getElementById('mainDiv').style.display = 'none';
-                // window.location.href = "/Deactivated/deactivated.html"
-            }
-            console.log(isActive);
-        })
-        .catch(error => {
-            console.error('Error fetching IsActive status:', error);
-        });
-
     // const token = localStorage.getItem('token');
     const hotelId = getQueryParam('hotelId');
     const viewAllReview = document.getElementById('viewAllReviews');
@@ -250,6 +230,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hotelId) {
         fetchHotelDetails(hotelId);
     }
+
+    const logoutButton = document.getElementById('logoutbtn');
+    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    const confirmLogoutButton = document.getElementById('confirmLogoutButton');
+    logoutButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        logoutModal.show();
+    });
+
+    confirmLogoutButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userID');
+        localStorage.removeItem('role');
+
+        window.location.href = '/Login/Login.html';
+    });
     
 
     document.getElementById('editHotel').addEventListener('click', function (){

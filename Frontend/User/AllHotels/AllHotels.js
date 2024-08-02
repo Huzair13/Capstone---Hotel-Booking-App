@@ -40,10 +40,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!isActive) {
             document.getElementById('deactivatedDiv').style.display = 'block';
             document.getElementById('mainDiv').style.display = 'none';
+            document.getElementById('footer').display.style ='none';
         }
     } catch (error) {
         console.error('Error fetching IsActive status:', error);
     }
+
+    const logoutButton = document.getElementById('logoutbtn');
+    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    const confirmLogoutButton = document.getElementById('confirmLogoutButton');
+    logoutButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        logoutModal.show();
+    });
+
+    confirmLogoutButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userID');
+        localStorage.removeItem('role');
+
+        window.location.href = '/Login/Login.html';
+    });
 
     const cityDropdown = document.getElementById('cityDropdown');
     fetch('https://localhost:7257/api/GetHotelCity', {
@@ -135,8 +153,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const amenitiesHtml = hotel.amenities.map(amenityId => {
                 const amenityName = amenitiesMap[amenityId];
-                const amenityIcon = getAmenityIcon(amenityName);
-                return `<li>${amenityIcon} ${amenityName}</li>`;
+                const amenityIcon = getAmenityIcon(amenityName); 
+                return `<div>${amenityIcon}</div>`;
             }).join('');
 
             const leastRentRoomHtml = hotel.leastRentRoom ? `
@@ -145,51 +163,73 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             ` : '';
 
+            function capitalizeFirstLetter(text) {
+                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+            }
+            
+            function formatAddress(address, city, state) {
+                return `${capitalizeFirstLetter(address)}, ${capitalizeFirstLetter(city)}, ${capitalizeFirstLetter(state)}`;
+            }
+            
+            const formattedAddress = formatAddress(hotel.address, hotel.city, hotel.state);
+            
+            const adddressTextHtml = `
+                <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${formattedAddress}</p>
+            `;
+
             hotelListDiv.innerHTML += `
-                <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card">
-                        <div class="carousel slide" data-bs-ride="carousel" id="carousel-${hotel.name.replace(/\s+/g, '')}">
-                            <div class="carousel-inner">
-                                ${imagesHtml}
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${hotel.name.replace(/\s+/g, '')}" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-${hotel.name.replace(/\s+/g, '')}" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="card">
+                    <div class="carousel slide CardSlider" data-bs-ride="carousel" id="carousel-${hotel.name.replace(/\s+/g, '')}">
+                        <div class="carousel-inner">
+                            ${imagesHtml}
                         </div>
-                        <div class="card-body">
-                            <h5 class="card-title text-center">${hotel.name}</h5>
-                            <div class="row">
-                                <div class="col-md-6 text-center">
-                                    <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${hotel.address}, ${hotel.city}, ${hotel.state}</p>
-                                    <ul class="list-unstyled">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${hotel.name.replace(/\s+/g, '')}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-${hotel.name.replace(/\s+/g, '')}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title hotel-name">${hotel.name}</h5>
+                        <div class="row">
+                            <div class="col-md-6 text-center">
+                                ${adddressTextHtml}
+                                <div class="hotel-amenities mt-3">
+                                    <div id="hotelAmenitiesValue"
+                                        class="amenities-icons d-flex justify-content-center">
                                         ${amenitiesHtml}
-                                    </ul>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 text-center">
-                                    <p class="card-text">Rating: ${ratingHtml}</p>
-                                    ${leastRentRoomHtml}
-                                    <a href="/HotelDetails/hotelDetails.html?hotelId=${hotel.id}" class="book-button text-center">Book Now</a>
-                                </div>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <p class="card-text">${ratingHtml}</p>
+                                ${leastRentRoomHtml}
+                            <a href="/User/HotelDetails/hotelDetails.html?hotelId=${hotel.id}" class="book-button text-center">Book Now</a>
                             </div>
                         </div>
                     </div>
                 </div>
-            `;
+    </div>
+`;
         });
     }
 
     function getAmenityIcon(amenity) {
         const icons = {
-            'Free Wi-Fi': '<i class="fa fa-wifi"></i>',
-            'Pool': '<i class="fa fa-swimming-pool"></i>',
-            'Parking': '<i class="fa fa-parking"></i>',
-            'Gym': '<i class="fa fa-dumbbell"></i>',
-            'Restaurant': '<i class="fa fa-utensils"></i>',
+            "AC": '<i class="fas fa-snowflake "></i>',
+            'Wifi': '<i class="fas fa-wifi"></i>',
+            'Fan': '<i class="fas fa-fan"></i>',
+            "TV": '<i class="fas fa-tv"></i>',
+            "Play Station": '<i class="fas fa-gamepad"></i>',
+            "Geyser": '<i class="fas fa-tachometer-alt"></i>',
+            'Pool': '<i class="fas fa-swimming-pool"></i>',
+            'Parking': '<i class="fas fa-parking"></i>',
+            'Gym': '<i class="fas fa-dumbbell"></i>',
+            'Restaurant': '<i class="fas fa-utensils"></i>',
         };
         return icons[amenity] || '<i class="fa fa-wifi"></i>';
     }
@@ -218,6 +258,86 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderPagination(hotels.length, hotelsPerPage, currentPage);
 
     });
+
+    document.getElementById('request-activation').addEventListener('click', function() {
+        fetch('https://localhost:7032/GetAllRequests', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(requests => {
+            const userId = localStorage.getItem('userID');
+            const isRequested = requests.some(request => 
+                request.userId === userId && request.status === 'Requested'
+            );
+    
+            if (isRequested) {
+                alert('You have already requested.');
+            } else {
+                showRequestForm();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching requests:', error);
+        });
+    });
+
+
+    function showRequestForm() {
+        const modalHtml = `
+            <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="requestModalLabel">Submit Request</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="request-form">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason:</label>
+                                    <input type="text" class="form-control" id="reason" name="reason" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Request</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+        const requestModal = new bootstrap.Modal(document.getElementById('requestModal'));
+        requestModal.show();
+    
+        document.getElementById('request-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const reason = document.getElementById('reason').value;
+            
+            fetch('https://localhost:7032/RequestForActivation', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reason: reason
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Request submitted successfully!');
+                requestModal.hide();
+                document.getElementById('requestModal').remove();
+            })
+            .catch(error => {
+                console.error('Error submitting request:', error);
+            });
+        });
+    }
+
 
     function renderPagination(totalHotels, hotelsPerPage, currentPage) {
         const paginationContainer = document.querySelector('.pagination');

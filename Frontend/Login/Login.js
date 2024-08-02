@@ -57,7 +57,7 @@
             fetch('https://localhost:7032/Login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     userId: txtUid,
@@ -69,7 +69,12 @@
                     setTimeout(() => {
                         login(data)
                         hideLoadingModal();
-                        window.location.href = '/Home/home.html'
+                        if(data.role === "Admin"){
+                            window.location.href ='/Admin/AdminHome/adminHome.html'
+                        }
+                        else{
+                            window.location.href = '/User/UserHome/userHome.html'
+                        }
                     }, 1000);
                 })
                 .catch(error => {

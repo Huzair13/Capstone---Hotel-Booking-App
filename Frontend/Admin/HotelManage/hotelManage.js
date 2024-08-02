@@ -15,6 +15,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    const logoutButton = document.getElementById('logoutbtn');
+    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    const confirmLogoutButton = document.getElementById('confirmLogoutButton');
+    logoutButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        logoutModal.show();
+    });
+
+    confirmLogoutButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userID');
+        localStorage.removeItem('role');
+
+        window.location.href = '/Login/Login.html';
+    });
+
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/Login/Login.html';
@@ -24,24 +41,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/Login/Login.html';
     }
 
-    try {
-        const response = await fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const isActive = await response.json();
-        if (!isActive) {
-            document.getElementById('deactivatedDiv').style.display = 'block';
-            document.getElementById('mainDiv').style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Error fetching IsActive status:', error);
+    if(localStorage.getItem('role')!=="Admin"){
+        alert("Unathorized");
+        window.location.href="/Login/Login.html"
     }
 
     const hotelListDiv = document.getElementById('hotelList');
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const amenitiesHtml = hotel.amenities.map(amenityId => {
                 const amenityName = amenitiesMap[amenityId];
                 const amenityIcon = getAmenityIcon(amenityName);
-                return `<li>${amenityIcon} ${amenityName}</li>`;
+                return `<div>${amenityIcon}</div>`;
             }).join('');
 
             const leastRentRoomHtml = hotel.leastRentRoom ? `
@@ -124,10 +126,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             ` : '';
 
+            function capitalizeFirstLetter(text) {
+                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+            }
+            
+            function formatAddress(address, city, state) {
+                return `${capitalizeFirstLetter(address)}, ${capitalizeFirstLetter(city)}, ${capitalizeFirstLetter(state)}`;
+            }
+            
+            const formattedAddress = formatAddress(hotel.address, hotel.city, hotel.state);
+            
+            const adddressTextHtml = `
+                <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${formattedAddress}</p>
+            `;
+
             hotelListDiv.innerHTML += `
                 <div class="col-lg-6 col-md-12 mb-4">
                     <div class="card">
-                        <div class="carousel slide" data-bs-ride="carousel" id="carousel-${hotel.name.replace(/\s+/g, '')}">
+                        <div class="carousel slide CardSlider" data-bs-ride="carousel" id="carousel-${hotel.name.replace(/\s+/g, '')}">
                             <div class="carousel-inner">
                                 ${imagesHtml}
                             </div>
@@ -141,18 +157,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </button>
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title text-center">${hotel.name}</h5>
+                            <h5 class="card-title text-center hotel-name">${hotel.name}</h5>
                             <div class="row">
                                 <div class="col-md-6 text-center">
-                                    <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${hotel.address}, ${hotel.city}, ${hotel.state}</p>
-                                    <ul class="list-unstyled">
+                                    ${adddressTextHtml}
+                                    <div class="hotel-amenities mt-3">
+                                    <div id="hotelAmenitiesValue"
+                                        class="amenities-icons d-flex justify-content-center">
                                         ${amenitiesHtml}
-                                    </ul>
+                                    </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 text-center">
                                     <p class="card-text">Rating: ${ratingHtml}</p>
                                     ${leastRentRoomHtml}
-                                    <a href="/ManageOptions/manageOptions.html?hotelId=${hotel.id}" class="book-button text-center">Manage Hotel</a>
+                                    <a href="/Admin/ManageOptions/manageOptions.html?hotelId=${hotel.id}" class="book-button text-center">Manage Hotel</a>
                                 </div>
                             </div>
                         </div>
@@ -164,11 +183,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function getAmenityIcon(amenity) {
         const icons = {
-            'Free Wi-Fi': '<i class="fa fa-wifi"></i>',
-            'Pool': '<i class="fa fa-swimming-pool"></i>',
-            'Parking': '<i class="fa fa-parking"></i>',
-            'Gym': '<i class="fa fa-dumbbell"></i>',
-            'Restaurant': '<i class="fa fa-utensils"></i>',
+            "AC": '<i class="fas fa-snowflake "></i>',
+            'Wifi': '<i class="fas fa-wifi"></i>',
+            'Fan': '<i class="fas fa-fan"></i>',
+            "TV": '<i class="fas fa-tv"></i>',
+            "Play Station": '<i class="fas fa-gamepad"></i>',
+            "Geyser": '<i class="fas fa-tachometer-alt"></i>',
+            'Pool': '<i class="fas fa-swimming-pool"></i>',
+            'Parking': '<i class="fas fa-parking"></i>',
+            'Gym': '<i class="fas fa-dumbbell"></i>',
+            'Restaurant': '<i class="fas fa-utensils"></i>',
         };
         return icons[amenity] || '<i class="fa fa-wifi"></i>';
     }

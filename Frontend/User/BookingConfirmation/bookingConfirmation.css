@@ -1,0 +1,142 @@
+body {
+    background: linear-gradient(45deg, #D3D9D4, #748D92, #124E66, #2E3944);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-size: cover; 
+    background-repeat: no-repeat; 
+    min-height: 100vh; 
+    margin: 0; 
+    object-fit: cover;
+}
+.card {
+    border-radius: 0.5rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+h1.display-4 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+p.lead {
+    font-size: 1.25rem;
+    color: #6c757d;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075)!important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.fw-bold {
+    font-weight: 700;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+#bookingConfirmation .row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#bookingConfirmation .row .col-4 {
+    text-align: left;
+    flex: 0 0 30%; 
+    max-width: 30%; 
+}
+
+#bookingConfirmation .row .col-8 {
+    text-align: right;
+    flex: 1; 
+}
+
+@media (max-width: 380px) {
+    #bookingConfirmation .row {
+        flex-direction: column;
+        align-items: stretch; 
+    }
+
+    #bookingConfirmation .row .col-4,
+    #bookingConfirmation .row .col-8 {
+        text-align: left;
+        width: 100%;
+    }
+
+    #bookingConfirmation .row .col-4 {
+        margin-bottom: 0.5rem; 
+    }
+}
+
+.row-highlight {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107; 
+    padding: 1rem; 
+    border-radius: 0.25rem; 
+    margin-bottom: 1rem;
+}
+
+.row-highlight .col-4 {
+    font-weight: 700;
+    color: #856404; 
+}
+
+.row-highlight .col-8 {
+    color: #6c757d;
+    font-weight: 500; 
+}
+
+.large-text {
+    font-size: 1.25rem; 
+}
+
+#saveQrCodeBtn {
+    background-color: rgb(83, 83, 13);
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 2s ease-out;
+}
+
+#saveQrCodeBtn:hover {
+    background-color: rgb(64, 64, 6);
+    color: white;
+    transform: scale(1.2);
+}
+
+.btn-back-to-home{
+    background-color: rgb(107, 107, 18);
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 2s ease-out;
+}
+.btn-back-to-home:hover{
+    background-color: rgb(46, 46, 9);
+    color: white;
+}

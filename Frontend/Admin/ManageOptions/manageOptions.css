@@ -1,3 +1,14 @@
+body {
+    background: linear-gradient(45deg, #D3D9D4, #748D92,#124E66,#2E3944);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.container-fluid {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
 .carousel-item img {
     width: 100%;
     max-height: 500px;
@@ -10,10 +21,34 @@
 
 .view-all-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    bottom: 1rem;
+    right: 1rem;
     z-index: 10;
+    max-width: 90%;
+    width: auto;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
 }
+
+.viewAllBtn{
+    background: #124E66;
+    color: white;
+}
+.viewAllBtn:hover{
+    background: #092733;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .view-all-btn {
+        font-size: 0.5rem;
+        bottom: 0.5rem;
+        right: 0.5rem;
+    }
+}
+
+
 
 .modal-dialog {
     max-width: 90%;
@@ -33,7 +68,68 @@
 }
 
 .hotel-details {
-    margin-top: 30px;
+    margin: 50px auto 10px auto; 
+    padding: 20px;
+    border-radius: 25px 0px 0px 0px;
+    box-sizing: border-box;
+    background: #D3D9D4;
+    /* background: #fff; */
+    /* background : #586a6d; */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hotel-name {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.hotel-address,
+.hotel-price {
+    font-size: 1.125rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+
+.hotel-ratings {
+    margin-bottom: 15px;
+}
+
+.hotel-amenities {
+    font-size: 1.125rem;
+    color: #555;
+}
+
+.hotel-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+
+@media (max-width: 768px) {
+    .hotel-price {
+        font-size: 1.25rem;
+    }
+
+    .highlight.price {
+        font-size: 1.5rem;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .hotel-price {
+        font-size: 1rem;
+    }
+
+    .highlight.price {
+        font-size: 1.25rem;
+        padding: 6px 10px;
+    }
 }
 
 .highlight {
@@ -89,7 +185,7 @@
 
 .review-date {
     font-size: 0.875rem;
-    color: #6c757d;
+    color: white;
     text-align: right;
 }
 
@@ -177,27 +273,6 @@
     border-color: #545b62;
 }
 
-.hotel-details {
-    margin-top: 30px;
-    padding: 20px;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.hotel-name {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.hotel-address,
-.hotel-price {
-    font-size: 1.125rem;
-    color: #555;
-    margin-bottom: 10px;
-}
 
 .highlight {
     font-weight: bold;
@@ -208,9 +283,6 @@
     font-size: 1.5rem;
 }
 
-.hotel-ratings {
-    margin-bottom: 15px;
-}
 
 .rating-badge {
     display: inline-block;
@@ -232,10 +304,6 @@
     margin-right: 2px;
 }
 
-.hotel-amenities {
-    font-size: 1.125rem;
-    color: #555;
-}
 
 .amenities-icons {
     display: flex;
@@ -246,8 +314,11 @@
 
 .amenities-icons i {
     font-size: 1.5rem;
-    color: #007bff;
-    background: #e9ecef;
+    /* color: #007bff; */
+    /* color: #2e3944; */
+    /* background: #e9ecef; */
+    background: #212A31;
+    color: #D3D9D4;
     border-radius: 50%;
     padding: 10px;
     display: flex;
@@ -255,14 +326,13 @@
     justify-content: center;
     width: 50px;
     height: 50px;
+    transition: all 0.2s ease-in;
 }
 
-.hotel-price {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 15px;
+.amenities-icons i:hover{
+    transform: scale(1.1);
 }
+
 
 .highlight.price {
     font-size: 1.5rem;
@@ -282,24 +352,17 @@
     max-width: 300px; 
 }
 
-@media (max-width: 768px) {
-    .hotel-price {
-        font-size: 1.25rem;
-    }
-
-    .highlight.price {
-        font-size: 1.5rem;
-        padding: 8px 12px;
-    }
+.allReviewsContainer{
+    width: 100%;
+    margin: 10px auto; 
+    /* background: #748d92; */
+    background: #2E3944;
+    color: white;
+    padding: 20px;
+    border-radius: 25px 25px 0px 0px;
+    box-sizing: border-box;
 }
-
-@media (max-width: 576px) {
-    .hotel-price {
-        font-size: 1rem;
-    }
-
-    .highlight.price {
-        font-size: 1.25rem;
-        padding: 6px 10px;
-    }
+.btn-outline-dark:hover {
+    background-color: #343a40;
+    color: #fff;
 }

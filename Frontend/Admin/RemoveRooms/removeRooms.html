@@ -7,145 +7,36 @@
     <title>Manage Rooms</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- FONT AWESOME  -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+    <!--  FONTS  -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="removeRooms.css">
 </head>
 
 <body>
     <div class="container mt-5">
-        <h2 class="text-center mb-4">Manage Rooms</h2>
+        <h2 class="text-center mb-4" style="font-family: 'Playfair Display', serif; color: white;">Manage Rooms</h2>
         <div id="alertPlaceholder"></div>
         <div id="roomsTableContainer">
-            <!-- Rooms table will be injected here -->
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const hotelId = urlParams.get('hotelId');
-            if (!hotelId) {
-                showAlert('Hotel ID is missing in the URL.', 'danger');
-                return;
-            }
-
-            fetchRooms(hotelId);
-
-            function fetchRooms(hotelId) {
-                fetch(`https://localhost:7257/api/GetRoomsByHotelID/${hotelId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                })
-                    .then(response => {
-                        console.log('Response Status:', response.status); // Log response status
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Fetched Rooms Data:', data); // Log the response data
-                        if (!data || data.length === 0) {
-                            showAlert('No rooms data available.', 'warning');
-                            return;
-                        }
-                        displayRooms(data);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching room details:', error); // Log detailed error
-                        showAlert(error.message || 'An error occurred while fetching room details.', 'danger');
-                    });
-            }
-
-            function displayRooms(rooms) {
-    const container = document.getElementById('roomsTableContainer');
-    
-    if (!Array.isArray(rooms) || rooms.length === 0) {
-        container.innerHTML = '<p>No rooms found for this hotel.</p>';
-        return;
-    }
-
-    const tableHtml = `
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Room Number</th>
-                    <th>Room Type</th>
-                    <th>Room Floor</th>
-                    <th>Allowed Number of Guests</th>
-                    <th>Rent</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${rooms.map(room => {
-                    // Ensure Rent is properly formatted
-                    const rent = (room.rent !== undefined && !isNaN(room.rent)) ? room.rent.toFixed(2) : 'N/A';
-                    
-                    // Display each room's data
-                    return `
-                        <tr>
-                            <td>${room.roomNumber || 'N/A'}</td>
-                            <td>${room.roomType || 'N/A'}</td>
-                            <td>${room.roomFloor || 'N/A'}</td>
-                            <td>${room.allowedNumOfGuests || 'N/A'}</td>
-                            <td>${rent}</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" onclick="removeRoom(${room.roomNumber})">Remove</button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('')}
-            </tbody>
-        </table>
-    `;
-    container.innerHTML = tableHtml;
-}
-
-            window.removeRoom = function (roomNumber) {
-                fetch(`https://localhost:7257/api/RemoveRoomFromHotel`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({
-                        hotelId : parseInt(hotelId),
-                        roomNumber : parseInt(roomNumber)
-                    })
-                })
-                    .then(response => {
-                        console.log('Remove Room Response Status:', response.status); // Log response status
-                        return response.json();
-                    })
-                    .then(() => {
-                        showAlert('Room removed successfully!', 'success');
-                        fetchRooms(hotelId); // Refresh the room list
-                    })
-                    .catch(error => {
-                        console.error('Error removing room:', error); // Log detailed error
-                        showAlert(error.message || 'An error occurred while removing the room.', 'danger');
-                    });
-            };
-
-            function showAlert(message, type) {
-                const alertPlaceholder = document.getElementById('alertPlaceholder');
-                const alert = document.createElement('div');
-                alert.className = `alert alert-${type} alert-dismissible fade show`;
-                alert.role = 'alert';
-                alert.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-                alertPlaceholder.innerHTML = '';
-                alertPlaceholder.appendChild(alert);
-            }
-        });
-
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
         crossorigin="anonymous"></script>
+    <script src="removeRooms.js">
+
+    </script>
 </body>
 
 </html>

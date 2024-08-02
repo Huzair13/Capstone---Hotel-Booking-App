@@ -3,7 +3,7 @@ function getQueryParam(param) {
     return urlParams.get(param);
 }
 
-let userRatingsAll =[]
+let userRatingsAll = []
 
 async function fetchUserRating(hotelId, userId) {
     try {
@@ -24,7 +24,7 @@ async function fetchUserRating(hotelId, userId) {
             );
 
             if (userRating) {
-                userRatingsAll =userRating;
+                userRatingsAll = userRating;
                 displayUserRating(userRating);
             } else {
                 document.getElementById('updateRatingButton').style.display = 'none'
@@ -143,8 +143,6 @@ async function fetchHotelDetails(hotelId) {
                 modalThumbnails.appendChild(thumbnailImg);
             });
 
-
-
             const [roomsResponse, amenitiesResponse, reviewsResponse] = await Promise.all([
                 fetch('https://localhost:7257/api/GetAllRooms', fetchOptions),
                 fetch('https://localhost:7257/api/GetAllAmenities', fetchOptions),
@@ -181,13 +179,13 @@ async function fetchHotelDetails(hotelId) {
             document.getElementById('hotelAverageRatingsValue').textContent = `${hotel.averageRatings}/5`;
 
             const ratingBadge = document.getElementById('hotelAverageRatingsValue');
-            let badgeColor = '#ffcc00'; 
+            let badgeColor = '#ffcc00';
             if (hotel.averageRatings >= 4.5) {
-                badgeColor = '#28a745'; 
+                badgeColor = '#28a745';
             } else if (hotel.averageRatings >= 3) {
-                badgeColor = '#ffc107'; 
+                badgeColor = '#ffc107';
             } else {
-                badgeColor = '#dc3545'; 
+                badgeColor = '#dc3545';
             }
             ratingBadge.style.backgroundColor = badgeColor;
 
@@ -246,7 +244,7 @@ async function fetchHotelDetails(hotelId) {
                 reviewsContainer.appendChild(reviewElement);
             });
 
-            if (reviews.length > 3) {
+            if (reviews.length > 1) {
                 document.getElementById('viewAllReviews').style.display = 'block';
             }
         }
@@ -255,19 +253,64 @@ async function fetchHotelDetails(hotelId) {
     }
 }
 
+function isTokenExpired(token) {
+    try {
+        const decoded = jwt_decode(token);
+        console.log(decoded)
+        const currentTime = Date.now() / 1000;
+        return decoded.exp < currentTime;
+    } catch (error) {
+        console.error("Error decoding token:", error);
+        return true;
+    }
+}
+
+const emojis = document.querySelectorAll('#emojiRating .emoji');
+const hiddenInput = document.getElementById('ratingUpdateValue');
+
+emojis.forEach(emoji => {
+    emoji.addEventListener('click', () => {
+        const value = emoji.getAttribute('data-value');
+        hiddenInput.value = value;
+        updateEmojis(value);
+    });
+});
+
+function updateEmojis(rating) {
+    emojis.forEach(emoji => {
+        if (emoji.getAttribute('data-value') === rating) {
+            emoji.classList.add('selected');
+        } else {
+            emoji.classList.remove('selected');
+        }
+    });
+}
+
+const emojis2 = document.querySelectorAll('#emojiRating .emoji');
+const hiddenInput2 = document.getElementById('ratingValue');
+
+emojis2.forEach(emoji => {
+    emoji.addEventListener('click', () => {
+        const value = emoji.getAttribute('data-value');
+        hiddenInput2.value = value;
+        updateEmojis(value);
+    });
+});
+
+function updateEmojis(rating) {
+    emojis2.forEach(emoji => {
+        if (emoji.getAttribute('data-value') === rating) {
+            emoji.classList.add('selected');
+        } else {
+            emoji.classList.remove('selected');
+        }
+    });
+}
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    function isTokenExpired(token) {
-        try {
-            const decoded = jwt_decode(token);
-            console.log(decoded)
-            const currentTime = Date.now() / 1000;
-            return decoded.exp < currentTime;
-        } catch (error) {
-            console.error("Error decoding token:", error);
-            return true;
-        }
-    }
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/Login/Login.html';
@@ -293,7 +336,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isActive) {
                 document.getElementById('deactivatedDiv').style.display = 'block';
                 document.getElementById('mainDiv').style.display = 'none';
-                // window.location.href = "/Deactivated/deactivated.html"
             }
             console.log(isActive);
         })
@@ -301,12 +343,29 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching IsActive status:', error);
         });
 
-    // const token = localStorage.getItem('token');
+
+        const logoutButton = document.getElementById('logoutbtn');
+        const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+        const confirmLogoutButton = document.getElementById('confirmLogoutButton');
+        logoutButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            logoutModal.show();
+        });
+    
+        confirmLogoutButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('role');
+    
+            window.location.href = '/Login/Login.html';
+        });
+
     const hotelId = getQueryParam('hotelId');
     const viewAllReview = document.getElementById('viewAllReviews');
     viewAllReview.addEventListener('click', (event) => {
         event.preventDefault();
-        window.location.href = `reviews.html?hotelId=${hotelId}`;
+        window.location.href = `/User/Reviews/reviews.html?hotelId=${hotelId}`;
     });
 
     const userId = localStorage.getItem('userID');
@@ -321,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for the "Rate" button
     document.getElementById('updateRatingButton').addEventListener('click', () => {
         const ratingModal = new bootstrap.Modal(document.getElementById('ratingModalUpdate'));
-        document.getElementById('ratingUpdateValue').value = parseInt(userRatingsAll.ratingValue,10);
+        document.getElementById('ratingUpdateValue').value = parseInt(userRatingsAll.ratingValue, 10);
         document.getElementById('ratingUpdateFeedback').textContent = userRatingsAll.feedback;
         ratingModal.show();
     });
@@ -351,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchUserRating(hotelId, userId);
                 const ratingModal = bootstrap.Modal.getInstance(document.getElementById('ratingModal'));
                 ratingModal.hide();
+                window.location.reload();
             } else if (response.status === 400) {
                 document.getElementById('ratingError').style.display = 'block';
             } else {
@@ -363,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for the form submission
     document.getElementById('submitUpdateRating').addEventListener('click', async () => {
-        const ratingValue = parseInt(document.getElementById('ratingUpdateValue').value);
+        const ratingValue = (document.getElementById('ratingUpdateValue').value);
         const feedback = document.getElementById('ratingUpdateFeedback').value;
         const token = localStorage.getItem('token');
 
@@ -397,7 +457,86 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
     
+    document.getElementById('request-activation').addEventListener('click', function() {
+        fetch('https://localhost:7032/GetAllRequests', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(requests => {
+            const userId = localStorage.getItem('userID');
+            const isRequested = requests.some(request => 
+                request.userId === userId && request.status === 'Requested'
+            );
+    
+            if (isRequested) {
+                alert('You have already requested.');
+            } else {
+                showRequestForm();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching requests:', error);
+        });
+    });
+
+
+    function showRequestForm() {
+        const modalHtml = `
+            <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="requestModalLabel">Submit Request</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="request-form">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason:</label>
+                                    <input type="text" class="form-control" id="reason" name="reason" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Request</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+        const requestModal = new bootstrap.Modal(document.getElementById('requestModal'));
+        requestModal.show();
+    
+        document.getElementById('request-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const reason = document.getElementById('reason').value;
+            
+            fetch('https://localhost:7032/RequestForActivation', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reason: reason
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Request submitted successfully!');
+                requestModal.hide();
+                document.getElementById('requestModal').remove();
+            })
+            .catch(error => {
+                console.error('Error submitting request:', error);
+            });
+        });
+    }
 
     const decreaseGuestsBtn = document.getElementById('decreaseGuests');
     const increaseGuestsBtn = document.getElementById('increaseGuests');
@@ -428,6 +567,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkoutDate = document.getElementById('checkoutDate').value;
         const numGuests = document.getElementById('numGuests').value;
         const numRooms = document.getElementById('numRooms').value;
+        const button = document.getElementById('checkAvailability');
+        const buttonText = document.getElementById('buttonText');
+        const spinner = document.getElementById('spinner');
+
+        // Show loading spinner and disable button
+        button.disabled = true;
+        buttonText.style.display = 'none';
+        spinner.style.display = 'inline-block';
 
         const requestBody = {
             hotelId: hotelId,
@@ -463,9 +610,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 isAvailable: isAvailable
             }).toString();
 
-            window.location.href = `/AvailabilityResult/availabilityResult.html?${queryString}`;
+            window.location.href = `/User/AvailabilityResult/availabilityResult.html?${queryString}`;
         } catch (error) {
             console.error('Error:', error);
+        }
+        finally {
+            button.disabled = false;
+            buttonText.style.display = 'inline';
+            spinner.style.display = 'none';
         }
     });
 
@@ -482,6 +634,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('viewAllReviews').addEventListener('click', () => {
-        // Handle the action for viewing all reviews
+        window.location.href=`/User/Reviews/reviews.html?hotelId=${hotelId}`;
     });
 });

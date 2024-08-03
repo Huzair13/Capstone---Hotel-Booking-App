@@ -103,6 +103,7 @@ namespace BookingServices
             // Register repositories and services
             builder.Services.AddScoped<IRepository<int, Booking>, BookingRepository>();
             builder.Services.AddScoped<IBookingServices, BookingsServices>();
+            builder.Services.AddScoped<IRepository<int,Payment>,PaymentRepository>();
 
             // Configure CORS
             builder.Services.AddCors(opts =>

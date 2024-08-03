@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using RatingServices.Interfaces;
 using RatingServices.Models;
 using RatingServices.Models.DTOs;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 namespace RatingServices.Controllers
@@ -12,6 +13,7 @@ namespace RatingServices.Controllers
     [Route("api/")]
     [ApiController]
     [EnableCors("MyCors")]
+    [ExcludeFromCodeCoverage]
     public class RatingController : ControllerBase
     {
         private readonly IRatingService _ratingService;
@@ -91,10 +93,10 @@ namespace RatingServices.Controllers
 
         // Get all ratings
         [Authorize]
-        [HttpGet("GetAllRatings")]
+        [HttpGet("GetAllRating")]
         [ProducesResponseType(typeof(IEnumerable<Rating>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllRatings()
+        public async Task<ActionResult<IEnumerable<Rating>>> GetAllRatings()
         {
             try
             {

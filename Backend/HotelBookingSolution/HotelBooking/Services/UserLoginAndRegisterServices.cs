@@ -33,10 +33,6 @@ namespace HotelBooking.Services
             try
             {
                 var userDB = await _userDetailsRepo.Get(loginDTO.UserId);
-                if (userDB == null)
-                {
-                    throw new UnauthorizedUserException("Invalid username or password");
-                }
                 HMACSHA512 hMACSHA = new HMACSHA512(userDB.PasswordHashKey);
                 var encrypterPass = hMACSHA.ComputeHash(Encoding.UTF8.GetBytes(loginDTO.Password));
                 bool isPasswordSame = ComparePassword(encrypterPass, userDB.Password);

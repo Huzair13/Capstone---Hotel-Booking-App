@@ -15,5 +15,8 @@ namespace HotelBooking.Interfaces
         public Task<Request> RejectRequest(int requestId);
         public Task<Request> AcceptRequest(int requestId);
         public Task<Request> RequestForActivation(RequestDTO requestDTO);
+        public Task<IEnumerable<Request>> GetAllRequest();
+        public Task<User> ChangeUserRole(int userId, string role);
+
     }
 }

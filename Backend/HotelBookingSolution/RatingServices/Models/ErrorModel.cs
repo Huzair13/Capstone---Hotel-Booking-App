@@ -1,5 +1,8 @@
-﻿namespace HotelBooking.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace HotelBooking.Models
 {
+    [ExcludeFromCodeCoverage]
     public class ErrorModel
     {
         public int ErrorCode { get; set; }

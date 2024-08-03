@@ -9,5 +9,6 @@
         public int NumberOfRooms { get; set; }
         public int NumberOfGuests { get; set; }
         public int? RoomNumber { get; set; }
+        public PaymentMode PaymentMode { get; set; }
     }
 }

@@ -2,23 +2,21 @@
 
 namespace HotelBooking.Exceptions
 {
-    [Serializable]
-    internal class UnauthorizedUserException : Exception
+    public class UnauthorizedUserException : Exception
     {
+        string exceptionMessage;
+        public UnauthorizedUserException(int id)
+        {
+            exceptionMessage = $"Invalid username or password";
+        }
         public UnauthorizedUserException()
         {
+            exceptionMessage = "Invalid username or password";
         }
-
-        public UnauthorizedUserException(string? message) : base(message)
+        public UnauthorizedUserException(string message)
         {
+            exceptionMessage = message;
         }
-
-        public UnauthorizedUserException(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
-
-        protected UnauthorizedUserException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        public override string Message => exceptionMessage;
     }
 }

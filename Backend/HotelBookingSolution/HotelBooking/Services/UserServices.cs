@@ -187,10 +187,6 @@ namespace HotelBooking.Services
                 }
                 return true;
             }
-            catch(NoSuchRequestException ex)
-            {
-                throw new NoSuchRequestException(ex.Message);
-            }
             catch (NoSuchUserException ex)
             {
                 throw new NoSuchUserException(ex.Message);
@@ -219,5 +215,42 @@ namespace HotelBooking.Services
                 throw ex;
             }
         }
+
+        public async Task<IEnumerable<Request>> GetAllRequest()
+        {
+            try
+            {
+                var requests =await _requestRepo.Get();
+                return requests;
+            }
+            catch(NoSuchRequestException ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<User> ChangeUserRole(int userId,string role)
+        {
+            try
+            {
+
+                var user = await _userRepo.Get(userId);
+                user.UserType = role;
+                var updatedUser = await _userRepo.Update(user);
+                return updatedUser;
+            }
+            catch(NoSuchUserException ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        } 
     }
 }

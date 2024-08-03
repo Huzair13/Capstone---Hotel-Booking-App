@@ -131,7 +131,8 @@ namespace BookingServices.Controllers
                 HotelId = bookingInputDTO.HotelId,
                 NumberOfGuests = bookingInputDTO.NumberOfGuests,
                 RoomNumber = bookingInputDTO.RoomNumber,
-                NumberOfRooms= bookingInputDTO.NumberOfRooms
+                NumberOfRooms= bookingInputDTO.NumberOfRooms,
+                PaymentMode = bookingInputDTO.PaymentMode,
             };
             return bookingDTO;
         }

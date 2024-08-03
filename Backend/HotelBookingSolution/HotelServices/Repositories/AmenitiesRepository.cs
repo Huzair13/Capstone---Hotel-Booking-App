@@ -39,7 +39,7 @@ namespace HotelServices.Repositories
                 return amenity;
             }
 
-            throw new NoSuchAmenityFound(amenity);
+            throw new NoSuchAmenityFound(amenityID);
         }
 
         public async Task<IEnumerable<Amenity>> Get()

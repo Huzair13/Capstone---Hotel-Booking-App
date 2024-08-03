@@ -2,30 +2,21 @@
 
 namespace RatingServices.Exceptions
 {
-    [Serializable]
     public class NoSuchRatingException : Exception
     {
-        private int ratingID;
-
+        string ExceptionMessage;
         public NoSuchRatingException()
         {
+            ExceptionMessage = "Rating Not Found";
         }
-
         public NoSuchRatingException(int ratingID)
         {
-            this.ratingID = ratingID;
+            ExceptionMessage = $"Rating with the RatingID : {ratingID} not found";
         }
-
-        public NoSuchRatingException(string? message) : base(message)
+        public NoSuchRatingException(string message)
         {
+            ExceptionMessage = message;
         }
-
-        public NoSuchRatingException(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
-
-        protected NoSuchRatingException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        public override string Message => ExceptionMessage;
     }
 }

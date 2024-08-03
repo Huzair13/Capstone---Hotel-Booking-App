@@ -14,6 +14,7 @@
         public decimal FinalAmount { get; set; }
         public bool IsCancelled { get; set; }
         public bool IsPaid { get; set; }
+        public PaymentMode PaymentMode { get; set; }
     }
 
 }

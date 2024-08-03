@@ -45,5 +45,31 @@ namespace CancellationService.Controllers
             }
             return BadRequest("All Details are not provided");
         }
+
+
+        [Authorize]
+        [HttpPost("GetCancelByBookingID/{bookingID}")]
+        [ProducesResponseType(typeof(CancelReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CancelReturnDTO>> GetCancelByBookingID(int bookingID)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
+                    var result = await _cancelService.GetCancelDetailsByBookingId(bookingID);
+                    return Ok(result);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred while get the cancels.");
+                    return StatusCode(500, new ErrorModel(500, $"An error occurred while processing your request. {ex.Message}"));
+                }
+            }
+            return BadRequest("All Details are not provided");
+        }
+    
     }
 }

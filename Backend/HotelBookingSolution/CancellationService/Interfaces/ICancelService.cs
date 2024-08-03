@@ -6,5 +6,7 @@ namespace CancellationService.Interfaces
     public interface ICancelService
     {
         public Task<CancelReturnDTO> CancelTheBooking(int BookingId,int currUserID);
+        public Task<CancelReturnDTO> GetCancelDetailsByBookingId(int bookingId);
+
     }
 }

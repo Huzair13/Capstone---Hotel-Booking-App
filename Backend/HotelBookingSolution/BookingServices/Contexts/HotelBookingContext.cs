@@ -10,11 +10,16 @@ namespace BookingServices.Contexts
         }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<BookingDetail> BookingDetails { get; set; }
+        public DbSet<Payment> Payments { get; set; }    
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Booking>()
                 .Property(b => b.TotalAmount)
+                .HasColumnType("decimal(18, 2)");
+            modelBuilder.Entity<Payment>()
+                .Property(b => b.Amount)
                 .HasColumnType("decimal(18, 2)");
             modelBuilder.Entity<Booking>()
                 .Property(b => b.FinalAmount)

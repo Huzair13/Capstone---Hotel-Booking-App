@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using Azure;
 using Newtonsoft.Json;
 using BookingServices.Models.DTOs;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HotelServices.Services
 {
@@ -39,6 +41,25 @@ namespace HotelServices.Services
             _httpContextAccessor = httpContextAccessor;
             _amenityRepo = amenityRepo;
         }
+        public async Task<IList<string>> GetCities()
+        {
+            try
+            {
+                var allHotels = await _hotelRepo.Get();
+
+                var cities = allHotels
+                    .Select(hotel => hotel.City)
+                    .Select(city => city.ToLower())  
+                    .Distinct(StringComparer.OrdinalIgnoreCase)  
+                    .ToList();  
+                return cities;
+            }
+            catch (Exception ex)
+            {
+
+                return new List<string>();
+            }
+        }
 
         //ADD HOTEL 
         public async Task<HotelReturnDTO> AddHotelAsync(HotelDTO hotelDTO)
@@ -56,71 +77,6 @@ namespace HotelServices.Services
             }
         }
 
-        //ADD ROOMS TO HOTEL
-        public async Task<HotelReturnDTO> AddRoomToHotelAsync(int hotelId, RoomDTO roomDTO)
-        {
-            try
-            {
-                var hotel = await _hotelRepo.Get(hotelId);
-                if (hotel == null)
-                {
-                    throw new NoSuchHotelException(hotelId);
-                }
-
-                int roomNumber = int.Parse($"{hotelId}{roomDTO.RoomNumber}");
-
-                Room room = new Room
-                {
-                    RoomNumber = roomNumber,
-                    RoomType = roomDTO.RoomType,
-                    RoomFloor = roomDTO.RoomFloor,
-                    HotelId = hotelId,
-                    AllowedNumOfGuests = roomDTO.AllowedNumOfGuests,
-                    Rent = roomDTO.Rent,
-                    IsDeleted = false
-                };
-
-                var resultRoom = await _roomRepo.Add(room);
-
-                // Update the number of rooms in the hotel
-                hotel.NumOfRooms += 1;
-                await _hotelRepo.Update(hotel);
-
-                return await MapHotelToHotelReturnDTO(hotel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while adding a room to the hotel");
-                throw;
-            }
-        }
-
-        //GET ALL ROOMS
-        public async Task<List<RoomDTO>> GetAllRoomsAsync()
-        {
-            try
-            {
-                var rooms = await _roomRepo.Get();
-                var roomDTOs = rooms
-                    .Where(r => !r.IsDeleted) // Filter out deleted rooms
-                    .Select(r => new RoomDTO
-                    {
-                        IsDeleted = r.IsDeleted,
-                        RoomNumber = r.RoomNumber,
-                        RoomType = r.RoomType,
-                        RoomFloor = r.RoomFloor,
-                        AllowedNumOfGuests = r.AllowedNumOfGuests,
-                        Rent = r.Rent,
-                        HotelId = r.HotelId
-                    }).ToList();
-                return roomDTOs;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while retrieving all rooms");
-                throw;
-            }
-        }
 
         //GET ALL ROOMS
         public async Task<List<HotelReturnDTO>> GetAllHotels()
@@ -145,57 +101,12 @@ namespace HotelServices.Services
             }
         }
 
-        //ADD AMENITIES TO ROOM
-        public async Task<HotelReturnDTO> AddAmenitiesToHotelAsync(AddAmenitiesToHotelDTO dto)
-        {
-            try
-            {
-                var hotel = await _hotelRepo.Get(dto.HotelID);
-                if (hotel == null)
-                {
-                    throw new NoSuchHotelException(dto.HotelID);
-                }
-
-                foreach (var amenityId in dto.AmenityIds)
-                {
-                    var amenity = await _amenityRepo.Get(amenityId);
-                    if (amenity == null)
-                    {
-                        throw new NoSuchAmenityFound(amenityId);
-                    }
-
-                    if (!hotel.HotelAmenities.Any(ha => ha.AmenityId == amenityId))
-                    {
-                        hotel.HotelAmenities.Add(new HotelAmenity
-                        {
-                            HotelId = hotel.Id,
-                            AmenityId = amenityId
-                        });
-                    }
-                }
-
-                var result = await _hotelRepo.Update(hotel);
-                var returnResult = await MapHotelToHotelReturnDTO(result);
-                return returnResult;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while adding amenities to the hotel");
-                throw;
-            }
-        }
-
-
         //GET HOTEL BY ID
         public async Task<HotelReturnDTO> GetHotelByID(int hotelId)
         {
             try
             {
                 var hotel = await _hotelRepo.Get(hotelId);
-                if (hotel == null)
-                {
-                    throw new NoSuchHotelException(hotelId);
-                }
                 return await MapHotelToHotelReturnDTO(hotel);
             }
             catch (Exception ex)
@@ -214,7 +125,7 @@ namespace HotelServices.Services
                 var hotel = hotels.FirstOrDefault(h => h.Name.Equals(hotelName, StringComparison.OrdinalIgnoreCase));
                 if (hotel == null)
                 {
-                    throw new NoSuchHotelException(hotelName);
+                    throw new NoSuchHotelException();
                 }
                 return await MapHotelToHotelReturnDTO(hotel);
             }
@@ -224,7 +135,6 @@ namespace HotelServices.Services
                 throw;
             }
         }
-
 
         public async Task<List<Room>> BestAvailableCombinationAsync(BestCombinationDTO bestCombinationDTO)
         {
@@ -253,7 +163,7 @@ namespace HotelServices.Services
 
                 // Filter out booked rooms
                 var availableRooms = allRooms
-                            .Where(r => r.HotelId == bestCombinationDTO.HotelId && !bookedRooms.Contains(r.RoomNumber))
+                            .Where(r => r.HotelId == bestCombinationDTO.HotelId && !bookedRooms.Contains(r.RoomNumber) && !r.IsDeleted)
                             .OrderBy(r => r.AllowedNumOfGuests) 
                             .ToList();
 
@@ -303,7 +213,7 @@ namespace HotelServices.Services
 
                 // Filter out booked rooms
                 var availableRooms = allRooms
-                    .Where(r => r.HotelId == bestCombinationDTO.HotelId && !bookedRooms.Contains(r.RoomNumber))
+                    .Where(r => r.HotelId == bestCombinationDTO.HotelId && !bookedRooms.Contains(r.RoomNumber) && !r.IsDeleted)
                     .OrderByDescending(r => r.AllowedNumOfGuests)
                     .ToList();
 
@@ -318,6 +228,9 @@ namespace HotelServices.Services
                 throw;
             }
         }
+
+
+
 
         private List<List<Room>> FindRoomCombinations(List<Room> rooms, int numberOfGuests, int numberOfRooms)
         {
@@ -343,114 +256,6 @@ namespace HotelServices.Services
                 current.Add(room);
                 FindCombinations(rooms.Skip(i + 1).ToList(), numberOfGuests, numberOfRooms, current, results);
                 current.RemoveAt(current.Count - 1);
-            }
-        }
-
-
-        //GET AVAILABLE ROOMS 
-        public async Task<List<RoomDTO>> GetAvailableRoomsAsync(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
-        {
-            try
-            {
-                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-                var hotelClient = _httpClientFactory.CreateClient("BookingService");
-
-                var formattedCheckInDate = checkInDate.ToString("yyyy-MM-dd");
-                var formattedCheckOutDate = checkOutDate.ToString("yyyy-MM-dd");
-
-                var requestUri = $"api/GetBookedRooms?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}";
-                hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var hotelResponse = await hotelClient.GetAsync(requestUri);
-                if (!hotelResponse.IsSuccessStatusCode)
-                {
-                    var errorMessage = await hotelResponse.Content.ReadAsStringAsync();
-                    throw new Exception($"Failed to fetch booked rooms. Status Code: {hotelResponse.StatusCode}");
-                }
-
-                var jsonResponse = await hotelResponse.Content.ReadAsStringAsync();
-                var bookedRoomNumbers = JsonConvert.DeserializeObject<List<int>>(jsonResponse);
-
-                // Fetch all rooms from Hotel Service
-                var allRooms = await _roomRepo.Get();
-
-                // Filter out rooms that are booked and meet the guest requirements
-                var availableRooms = allRooms
-                    .Where(r => !bookedRoomNumbers.Contains(r.RoomNumber))
-                    .Where(r => r.AllowedNumOfGuests >= numberOfGuests)
-                    .ToList();
-
-                // Map to RoomDTO and include HotelId
-                return availableRooms.Select(r => new RoomDTO
-                {
-                    IsDeleted =r.IsDeleted,
-                    RoomNumber = r.RoomNumber,
-                    RoomType = r.RoomType,
-                    RoomFloor = r.RoomFloor,
-                    AllowedNumOfGuests = r.AllowedNumOfGuests,
-                    Rent = r.Rent,
-                    HotelId = r.HotelId
-                }).ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while retrieving available rooms");
-                throw;
-            }
-        }
-
-
-        //GET AVAILABLE ROOMS BY DATE
-        public async Task<List<RoomDTO>> GetAvailableRoomsByDateAsync(DateTime checkInDate, DateTime checkOutDate)
-        {
-            try
-            {
-                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-                var hotelClient = _httpClientFactory.CreateClient("BookingService");
-
-                var formattedCheckInDate = checkInDate.ToString("yyyy-MM-dd");
-                var formattedCheckOutDate = checkOutDate.ToString("yyyy-MM-dd");
-
-                // Fetch booked rooms for the given date range
-                var requestUri = $"api/GetBookedRooms?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}";
-                hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var hotelResponse = await hotelClient.GetAsync(requestUri);
-                if (!hotelResponse.IsSuccessStatusCode)
-                {
-                    var errorMessage = await hotelResponse.Content.ReadAsStringAsync();
-                    throw new Exception($"Failed to fetch booked rooms. Status Code: {hotelResponse.StatusCode}");
-                }
-
-                var jsonResponse = await hotelResponse.Content.ReadAsStringAsync();
-                var bookedRoomNumbers = JsonConvert.DeserializeObject<List<int>>(jsonResponse);
-
-                // Fetch all rooms from Hotel Service
-                var allRooms = await _roomRepo.Get();
-
-                // Filter out rooms that are booked
-                var availableRooms = allRooms
-                    .Where(r => !bookedRoomNumbers.Contains(r.RoomNumber))
-                    .ToList();
-
-                // Map to RoomDTO
-                return availableRooms.Select(r => new RoomDTO
-                {
-                    IsDeleted = r.IsDeleted,
-                    RoomNumber = r.RoomNumber,
-                    RoomType = r.RoomType,
-                    RoomFloor = r.RoomFloor,
-                    AllowedNumOfGuests = r.AllowedNumOfGuests,
-                    Rent = r.Rent,
-                    HotelId = r.HotelId
-                }).ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while retrieving available rooms");
-                throw;
             }
         }
 
@@ -535,47 +340,146 @@ namespace HotelServices.Services
             }
         }
 
-        //GET AMENITIES
-        public async Task<IEnumerable<Amenity>> GetAllAmenities()
+
+        // GET AVAILABLE HOTELS BY DATE
+        public async Task<List<HotelReturnDTO>> GetAvailableHotelsByDateAsync(DateTime checkInDate, DateTime checkOutDate)
         {
             try
             {
-                var result = await _amenityRepo.Get();
-                return result;
-            }
-            catch(NoSuchAmenityFound ex)
-            {
-                throw ex;
-            }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
-        }
+                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-        // ADD AMENITIES
-        public async Task<AmenityDTO> AddAmenityAsync(AmenityDTO amenityDTO)
-        {
-            try
-            {
-                var amenity = new Amenity
-                {
-                    Name = amenityDTO.Name,
-                };
+                var hotelClient = _httpClientFactory.CreateClient("BookingService");
 
-                var result = await _amenityRepo.Add(amenity);
-                return new AmenityDTO
+                var formattedCheckInDate = checkInDate.ToString("yyyy-MM-dd");
+                var formattedCheckOutDate = checkOutDate.ToString("yyyy-MM-dd");
+
+                // Fetch booked rooms for the given date range
+                var requestUri = $"api/GetBookedRooms?checkInDate={formattedCheckInDate}&checkOutDate={formattedCheckOutDate}";
+                hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var hotelResponse = await hotelClient.GetAsync(requestUri);
+                if (!hotelResponse.IsSuccessStatusCode)
                 {
-                    Id = result.Id,
-                    Name = result.Name
-                };
+                    var errorMessage = await hotelResponse.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to fetch booked rooms. Status Code: {hotelResponse.StatusCode}");
+                }
+
+                var jsonResponse = await hotelResponse.Content.ReadAsStringAsync();
+                var bookedRoomNumbers = JsonConvert.DeserializeObject<List<int>>(jsonResponse);
+
+                // Fetch all rooms from Room Repository
+                var allRooms = await _roomRepo.Get();
+
+                // Filter out rooms that are booked
+                var availableRooms = allRooms
+                    .Where(r => !bookedRoomNumbers.Contains(r.RoomNumber) && !r.IsDeleted)
+                    .ToList();
+
+                // Get distinct Hotel IDs from available rooms
+                var availableHotelIds = availableRooms
+                    .Select(r => r.HotelId)
+                    .Distinct()
+                    .ToList();
+
+                // Fetch all hotels from Hotel Repository
+                var allHotels = await _hotelRepo.Get();
+
+                var availableHotels = allHotels
+                            .Where(h => availableHotelIds.Contains(h.Id))
+                            .ToList();
+
+                // Map each Hotel to HotelDTO
+                var hotelDTOs = new List<HotelReturnDTO>();
+                foreach (var hotel in availableHotels)
+                {
+                    var hotelDTO = await MapHotelToHotelReturnDTO(hotel);
+                    hotelDTOs.Add(hotelDTO);
+                }
+                return hotelDTOs;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while adding the amenity");
+                _logger.LogError(ex, "An error occurred while retrieving available hotels");
                 throw;
             }
         }
+
+
+
+        //UPDATE HOTELS
+        public async Task<HotelReturnDTO> UpdateHotelAsync(HotelUpdateDataDTO hotelUpdateDTO)
+        {
+            try
+            {
+                var hotel = await _hotelRepo.Get(hotelUpdateDTO.HotelId);
+
+                // Update hotel properties
+                hotel.Name = hotelUpdateDTO.Name ?? hotel.Name;
+                hotel.Address = hotelUpdateDTO.Address ?? hotel.Address;
+                hotel.City = hotelUpdateDTO.City ?? hotel.City;
+                hotel.State = hotelUpdateDTO.State ?? hotel.State;
+                hotel.Type = hotelUpdateDTO.Type ?? hotel.Type;
+                hotel.Description = hotelUpdateDTO.Description ?? hotel.Description;
+
+                var updatedHotel = await _hotelRepo.Update(hotel);
+                return await MapHotelToHotelReturnDTO(updatedHotel);
+            }
+            catch(NoSuchHotelException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the hotel");
+                throw;
+            }
+        }
+
+        //DELETE HOTEL -- HARD DELETE
+        public async Task<HotelReturnDTO> DeleteHotelAsync(int hotelId)
+        {
+            try
+            {
+                var hotel = await _hotelRepo.Get(hotelId);
+                var result = await _hotelRepo.Delete(hotelId);
+                return await MapHotelToHotelReturnDTO(result);
+            }
+            catch(NoSuchHotelException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the hotel");
+                throw;
+            }
+        }
+
+        public async Task<HotelReturnDTO> AddImagesToHotelAsync(AddImageDTO addImageDTO)
+        {
+            try
+            {
+                var hotel = await _hotelRepo.Get(addImageDTO.hotelId);
+
+                // Convert ICollection to List
+                var hotelImages = hotel.HotelImages.ToList();
+                var newHotelImages = addImageDTO.imageUrls.Select(url => new HotelImage { ImageUrl = url }).ToList();
+                hotelImages.AddRange(newHotelImages);
+
+                // Reassign back to ICollection
+                hotel.HotelImages = hotelImages;
+
+                var result = await _hotelRepo.Update(hotel);
+                return await MapHotelToHotelReturnDTO(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding images to the hotel");
+                throw;
+            }
+        }
+
+
 
         public async Task<HotelDetailsDTO> GetAllHotelsRoomsAndAmenitiesAsync()
         {
@@ -625,45 +529,5 @@ namespace HotelServices.Services
                 throw;
             }
         }
-
-
-        //DELETE AMENITIES
-        public async Task<HotelReturnDTO> DeleteAmenityFromHotelAsync(DeleteAmenityDTO deleteAmenityDTO)
-        {
-            try
-            {
-                var hotel = await _hotelRepo.Get(deleteAmenityDTO.HotelID);
-                if (hotel == null)
-                {
-                    throw new NoSuchHotelException(deleteAmenityDTO.HotelID);
-                }
-
-                var amenity = await _amenityRepo.Get(deleteAmenityDTO.AmenityId);
-                if (amenity == null)
-                {
-                    throw new NoSuchAmenityFound(deleteAmenityDTO.AmenityId);
-                }
-
-                var hotelAmenity = hotel.HotelAmenities.FirstOrDefault(ha => ha.AmenityId == deleteAmenityDTO.AmenityId);
-                if (hotelAmenity == null)
-                {
-                    throw new AmenityNotInHotelException(deleteAmenityDTO.HotelID, deleteAmenityDTO.AmenityId);
-                }
-
-                hotel.HotelAmenities.Remove(hotelAmenity);
-
-                var result = await _hotelRepo.Update(hotel);
-                var returnResult = await MapHotelToHotelReturnDTO(result);
-
-                return returnResult;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while deleting the amenity from the hotel");
-                throw;
-            }
-        }
-
-
     }
 }

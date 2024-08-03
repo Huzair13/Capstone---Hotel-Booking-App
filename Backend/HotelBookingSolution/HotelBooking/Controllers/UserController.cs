@@ -8,6 +8,7 @@ using AuthenticationServices.Models.DTOs;
 using System.Security.Claims;
 using AuthenticationServices.Models;
 using Microsoft.AspNetCore.Authorization;
+using AuthenticationServices.Exceptions;
 
 namespace HotelBooking.Controllers
 {
@@ -292,6 +293,54 @@ namespace HotelBooking.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(new ErrorModel(501, ex.Message));
+            }
+        }
+
+
+        [Authorize]
+        [HttpGet("GetAllRequests")]
+        [ProducesResponseType(typeof(IEnumerable<Request>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Request>>> GetAllRequests()
+        {
+            try
+            {
+                var result = await _userServices2.GetAllRequest();
+                return Ok(result);
+            }
+            catch (NoSuchRequestException ex)
+            {
+                _logger.LogError(ex, "No Request Found");
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorModel(501, ex.Message));
+            }
+        }
+
+        [Authorize]
+        [HttpPut("UpdateUserRole")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<User>> UpdateUserRole(int userId, string userRole)
+        {
+            try
+            {
+                var result = await _userServices2.ChangeUserRole(userId,userRole);
+                return Ok(result);
+            }
+            catch (NoSuchUserException ex)
+            {
+                _logger.LogError(ex, "No User Found");
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An Error Occured");
                 return BadRequest(new ErrorModel(501, ex.Message));
             }
         }

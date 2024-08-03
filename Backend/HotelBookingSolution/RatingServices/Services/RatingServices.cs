@@ -9,6 +9,9 @@ using System.Net.Http.Json;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using RatingServices.Exceptions;
+using System.Net.Http.Headers;
+using System.Net.Http;
 
 namespace RatingServices.Services
 {
@@ -35,15 +38,18 @@ namespace RatingServices.Services
         {
             try
             {
+
+                var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
                 // Check if the hotel exists
-                var hotelExists = await CheckHotelExistsAsync(ratingDTO.HotelId);
+                var hotelExists = await CheckHotelExistsAsync(ratingDTO.HotelId,token);
                 if (!hotelExists)
                 {
                     throw new Exception("Hotel does not exist.");
                 }
 
                 // Check if the user exists
-                var userExists = await CheckUserExistsAsync(userId);
+                var userExists = await CheckUserExistsAsync(userId,token);
                 if (!userExists)
                 {
                     throw new Exception("User does not exist.");
@@ -70,7 +76,7 @@ namespace RatingServices.Services
 
                 var addedRating = await _ratingRepository.Add(rating);
 
-                await UpdateHotelAverageRatingAsync(ratingDTO.HotelId);
+                await UpdateHotelAverageRatingAsync(ratingDTO.HotelId,token);
                 return addedRating;
             }
             catch (Exception ex)
@@ -82,8 +88,17 @@ namespace RatingServices.Services
 
         public async Task<Rating> UpdateRatingAsync(int ratingId, RatingUpdateDTO ratingDTO, int userId)
         {
+            var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
             try
             {
+                // Check if the hotel exists
+                var hotelExists = await CheckHotelExistsAsync(ratingDTO.HotelId,token);
+                if (!hotelExists)
+                {
+                    throw new Exception("Hotel does not exist.");
+                }
+
                 var rating = await _ratingRepository.Get(ratingId);
 
                 if (rating == null)
@@ -91,12 +106,6 @@ namespace RatingServices.Services
                     throw new Exception("Rating not found or user does not own this rating.");
                 }
 
-                // Check if the hotel exists
-                var hotelExists = await CheckHotelExistsAsync(ratingDTO.HotelId);
-                if (!hotelExists)
-                {
-                    throw new Exception("Hotel does not exist.");
-                }
 
                 // Update rating only if the new value is provided
                 if (!string.IsNullOrWhiteSpace(ratingDTO.Feedback))
@@ -111,10 +120,11 @@ namespace RatingServices.Services
 
                 // Optionally update timestamp
                 rating.CreatedAt = DateTime.Now;
+
                 var updatedRating = await _ratingRepository.Update(rating);
 
                 // Update hotel average rating
-                await UpdateHotelAverageRatingAsync(rating.HotelId);
+                await UpdateHotelAverageRatingAsync(updatedRating.HotelId,token);
                 return updatedRating;
             }
             catch (Exception ex)
@@ -126,6 +136,8 @@ namespace RatingServices.Services
 
         public async Task<Rating> DeleteRatingAsync(int ratingId, int userId)
         {
+            var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
             try
             {
                 var rating = await _ratingRepository.Get(ratingId);
@@ -140,10 +152,9 @@ namespace RatingServices.Services
                     throw new Exception("User does not own this rating.");
                 }
 
+                await UpdateHotelAverageRatingAsync(rating.HotelId,token);
                 var deletedRating = await _ratingRepository.Delete(ratingId);
 
-                // Update hotel average rating
-                await UpdateHotelAverageRatingAsync(rating.HotelId);
                 return deletedRating;
             }
             catch (Exception ex)
@@ -178,11 +189,6 @@ namespace RatingServices.Services
             {
                 var rating = await _ratingRepository.Get(ratingId);
 
-                if (rating == null)
-                {
-                    throw new Exception("Rating not found.");
-                }
-
                 return rating;
             }
             catch (Exception ex)
@@ -196,16 +202,25 @@ namespace RatingServices.Services
         {
             try
             {
-                return await _ratingRepository.Get();
+                IEnumerable<Rating> rating = new List<Rating>();
+                try
+                {
+                    rating = await _ratingRepository.Get();
+                }
+                catch(NoSuchRatingException ex)
+                {
+
+                }
+                return rating;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while fetching all ratings");
-                throw;
+                throw ex ;
             }
         }
 
-        private async Task UpdateHotelAverageRatingAsync(int hotelId)
+        private async Task UpdateHotelAverageRatingAsync(int hotelId, string token)
         {
             try
             {
@@ -228,6 +243,7 @@ namespace RatingServices.Services
 
                 // Update the hotel average rating in the Hotel microservice
                 var hotelClient = _httpClientFactory.CreateClient("HotelService");
+                hotelClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var updateHotelRatingDTO = new
                 {
                     HotelId = hotelId,
@@ -248,17 +264,22 @@ namespace RatingServices.Services
             }
         }
 
-        private async Task<bool> CheckHotelExistsAsync(int hotelId)
+        public async Task<bool> CheckHotelExistsAsync(int hotelId,string token)
         {
             var httpClient = _httpClientFactory.CreateClient("HotelService");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await httpClient.GetAsync($"api/GetHotelByID/{hotelId}");
 
             return response.IsSuccessStatusCode;
         }
 
-        private async Task<bool> CheckUserExistsAsync(int userId)
+        public async Task<bool> CheckUserExistsAsync(int userId,string token)
         {
+
             var httpClient = _httpClientFactory.CreateClient("UserAuthService");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await httpClient.GetAsync($"getuser/{userId}");
 
             return response.IsSuccessStatusCode;

@@ -43,20 +43,20 @@ namespace RatingServices.Repositories
 
         public async Task<IEnumerable<Rating>> Get()
         {
-            var hotels = await _context.Reviews.ToListAsync();
-            if (hotels.Count != 0)
+            var ratings = await _context.Reviews.ToListAsync();
+            if (ratings.Count != 0)
             {
-                return hotels;
+                return ratings;
             }
-            throw new NoSuchRatingException();
+            return new List<Rating>();
         }
 
         public async Task<Rating> Update(Rating rating)
         {
+            var existingRating = await Get(rating.Id);
             _context.Update(rating);
-            await _context.SaveChangesAsync();
-            var existingHotel = await Get(rating.Id);
-            return existingHotel;
+            await _context.SaveChangesAsync(true);
+            return existingRating;
         }
     }
 }

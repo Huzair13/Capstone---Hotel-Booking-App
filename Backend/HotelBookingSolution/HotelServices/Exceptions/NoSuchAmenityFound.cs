@@ -3,34 +3,21 @@ using System.Runtime.Serialization;
 
 namespace HotelServices.Exceptions
 {
-    [Serializable]
-    internal class NoSuchAmenityFound : Exception
+    public class NoSuchAmenityFound : Exception
     {
-        private Amenity? amenity;
-
+        string ExceptionMessage;
         public NoSuchAmenityFound()
         {
+            ExceptionMessage = "Amenity Not Found";
         }
-
-        public NoSuchAmenityFound(int amenityId)
+        public NoSuchAmenityFound(int amenityID)
         {
+            ExceptionMessage = $"Amenity with the AmenityID : {amenityID} not found";
         }
-
-        public NoSuchAmenityFound(Amenity? amenity)
+        public NoSuchAmenityFound(string message)
         {
-            this.amenity = amenity;
+            ExceptionMessage = message;
         }
-
-        public NoSuchAmenityFound(string? message) : base(message)
-        {
-        }
-
-        public NoSuchAmenityFound(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
-
-        protected NoSuchAmenityFound(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        public override string Message => ExceptionMessage;
     }
 }

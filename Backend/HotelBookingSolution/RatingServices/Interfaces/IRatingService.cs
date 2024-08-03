@@ -10,8 +10,10 @@ namespace RatingServices.Interfaces
         Task<Rating> UpdateRatingAsync(int ratingId, RatingUpdateDTO ratingDTO, int userId);
         Task<Rating> GetRatingByIdAsync(int ratingId);
         Task<IEnumerable<Rating>> GetAllRatingsAsync();
-
         public Task<IEnumerable<Rating>> GetRatingsByHotelIdAsync(int hotelId);
+        public Task<bool> CheckHotelExistsAsync(int hotelId,string token);
+        public Task<bool> CheckUserExistsAsync(int userId,string token);
+
     }
 
 }

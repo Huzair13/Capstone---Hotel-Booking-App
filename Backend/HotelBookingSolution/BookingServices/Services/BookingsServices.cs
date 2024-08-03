@@ -18,17 +18,20 @@ namespace BookingServices.Services
         //INITIALIZATION
 
         private readonly IRepository<int, Booking> _bookingRepo;
+        private readonly IRepository<int,Payment> _paymentRepo;
         private readonly ILogger<BookingsServices> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         //DEPENDENCY INJECTION
-        public BookingsServices(IRepository<int, Booking> bookingRepo, ILogger<BookingsServices> logger, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+        public BookingsServices(IRepository<int, Booking> bookingRepo, ILogger<BookingsServices> logger, 
+            IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor,IRepository<int,Payment> paymentRepo)
         {
             _bookingRepo = bookingRepo;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
+            _paymentRepo = paymentRepo;
         }
 
         // ADD BOOKING
@@ -69,7 +72,7 @@ namespace BookingServices.Services
                 if (!roomCombinationResponse.IsSuccessStatusCode)
                 {
                     var errorMessage = await roomCombinationResponse.Content.ReadAsStringAsync();
-                    throw new Exception($"Failed to fetch room combination. Status Code: {roomCombinationResponse.StatusCode}, Message: {errorMessage}");
+                    throw new Exception($"Failed to fetch room combination. Status Code: {roomCombinationResponse.StatusCode}");
                 }
 
                 var roomCombinationJson = await roomCombinationResponse.Content.ReadAsStringAsync();
@@ -105,6 +108,21 @@ namespace BookingServices.Services
 
                 var result = await _bookingRepo.Add(booking);
 
+                if(bookingDTO.PaymentMode == PaymentMode.Online)
+                {
+                    Payment payment = new Payment()
+                    {
+                        Amount = finalAmount,
+                        BookingId = booking.Id,
+                        PaymentMode = PaymentMode.Online
+                    };
+
+                    var resultPayment = await _paymentRepo.Add(payment);
+                    var bookingUpdate = result;
+                    bookingUpdate.IsPaid=true;
+                    await _bookingRepo.Update(bookingUpdate);
+                }
+
                 int CoinsEarned = (int)(totalAmount / 100);
 
                 // Update CoinsEarned in the UserService
@@ -120,7 +138,7 @@ namespace BookingServices.Services
                 if (!updateCoinsResponse.IsSuccessStatusCode)
                 {
                     var errorMessage = await updateCoinsResponse.Content.ReadAsStringAsync();
-                    throw new Exception($"Failed to update user coins. Status Code: {updateCoinsResponse.StatusCode}, Message: {errorMessage}");
+                    throw new Exception($"Failed to update user coins. Status Code: {updateCoinsResponse.StatusCode}");
                 }
 
                 var bookingReturnDTO = await MapBookingToBookingReturnDTO(booking, allocatedRooms);
@@ -141,6 +159,7 @@ namespace BookingServices.Services
             }
         }
 
+
         private async Task<BookingReturnDTO> MapBookingToBookingReturnDTO(Booking booking, List<BookingDetail> allocatedRooms)
         {
             return new BookingReturnDTO
@@ -154,6 +173,7 @@ namespace BookingServices.Services
                 TotalPrice = booking.TotalAmount,
                 FinalAmount = booking.FinalAmount,
                 Discount = booking.Discount,
+                PaymentMode = booking.PaymentMode,
                 RoomNumbers = allocatedRooms.Select(d => d.RoomNumber).ToList()
             };
         }
@@ -170,7 +190,8 @@ namespace BookingServices.Services
                 TotalAmount = totalAmount,
                 Discount = discount,
                 FinalAmount = finalAmount,
-                BookingDetails = allocatedRooms
+                BookingDetails = allocatedRooms,
+                PaymentMode = bookingDTO.PaymentMode
             };
             return booking;
         }
@@ -189,14 +210,10 @@ namespace BookingServices.Services
             //GET USER COINS AVAILABLE FOR REDEEMING
             var userJson = await userResponse.Content.ReadAsStringAsync();
             var user = JsonConvert.DeserializeObject<UserDTO>(userJson);
-
-            if (user == null)
-            {
-                throw new Exception("User data could not be fetched");
-            }
             int userAvailableCoins = user.CoinsEarned ?? 0;
             return userAvailableCoins;
         }
+
 
         private async Task CheckHotelExistance(BookingDTO bookingDTO, string token)
         {
@@ -239,6 +256,7 @@ namespace BookingServices.Services
 
             return bookedRoomNumbers;
         }
+
 
         //GET CANCELLATION COUNT FOR THE USER
         public async Task<int> GetCancellationCount(int userId)
@@ -331,7 +349,7 @@ namespace BookingServices.Services
             if (!roomCombinationResponse.IsSuccessStatusCode)
             {
                 var errorMessage = await roomCombinationResponse.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to fetch room combination. Status Code: {roomCombinationResponse.StatusCode}, Message: {errorMessage}");
+                throw new Exception($"Failed to fetch room combination. Status Code: {roomCombinationResponse.StatusCode}");
             }
 
             var roomCombinationJson = await roomCombinationResponse.Content.ReadAsStringAsync();
@@ -391,10 +409,6 @@ namespace BookingServices.Services
 
                 // Fetch the booking details
                 var booking = await _bookingRepo.Get(bookingId);
-                if (booking == null)
-                {
-                    throw new Exception("Booking not found");
-                }
 
                 // Check if the booking belongs to the current user
                 if (booking.UserId != currUserId)
@@ -447,6 +461,7 @@ namespace BookingServices.Services
             }
         }
 
+
         //CANCEL BOOKING BY BOOKING ID
         public async Task<CancelReturnDTO> CancelBookingByBookingId(int BookingID)
         {
@@ -467,6 +482,8 @@ namespace BookingServices.Services
                 throw ex;
             }
         }
+
+
 
         //MAP BOOKING TO CANCEL RETURN DTO
         private async Task<CancelReturnDTO> MapBookingToCanelReturnDTO(Booking result)
@@ -504,6 +521,7 @@ namespace BookingServices.Services
                     TotalPrice = booking.TotalAmount,
                     IsCancelled = booking.IsCancelled,
                     IsPaid =booking.IsPaid,
+                    PaymentMode = booking.PaymentMode,
                     RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() 
                 }).ToList();
             }
@@ -538,6 +556,7 @@ namespace BookingServices.Services
                     IsPaid = booking.IsPaid,
                     FinalAmount = booking.FinalAmount,
                     Discount = booking.Discount,
+                    PaymentMode = booking.PaymentMode,
                     RoomNumbers =  booking.BookingDetails.Select(d => d.RoomNumber).ToList()
                 };
             }
@@ -578,6 +597,7 @@ namespace BookingServices.Services
                     Discount = booking.Discount,
                     IsCancelled = booking.IsCancelled,
                     IsPaid = booking.IsPaid,
+                    PaymentMode = booking.PaymentMode,
                     RoomNumbers = booking.BookingDetails.Select(d => d.RoomNumber).ToList() 
                 }).ToList();
 

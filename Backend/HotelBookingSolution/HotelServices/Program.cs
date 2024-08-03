@@ -99,6 +99,8 @@ namespace HotelServices
 
             #region services
             builder.Services.AddScoped<IHotelServices, HotelsServices>();
+            builder.Services.AddScoped<IAmenityService, AmenitiesServices>();
+            builder.Services.AddScoped<IRoomService, RoomService>();
             //builder.Services.AddScoped<IAzureBlobService, AzureBlobService>();
             builder.Services.AddScoped<IAzureBlobService>(provider =>
             {

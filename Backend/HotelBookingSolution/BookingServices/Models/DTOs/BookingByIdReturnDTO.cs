@@ -14,5 +14,6 @@
         public decimal Discount { get; set; }
         public decimal FinalAmount { get; set; }
         public List<int> RoomNumbers { get; set; }
+        public PaymentMode PaymentMode { get; set; }
     }
 }

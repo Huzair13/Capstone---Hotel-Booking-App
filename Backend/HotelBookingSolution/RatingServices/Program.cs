@@ -8,10 +8,12 @@ using RatingServices.Interfaces;
 using RatingServices.Models;
 using RatingServices.Repositories;
 using RatingServices.Services;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace RatingServices
 {
+    [ExcludeFromCodeCoverage]
     public class Program
     {
         public static void Main(string[] args)

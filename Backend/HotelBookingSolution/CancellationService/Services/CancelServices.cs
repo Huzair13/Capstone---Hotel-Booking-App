@@ -58,10 +58,14 @@ namespace CancellationService.Services
                     throw new UnAuthotizedToCancelException();
                 }
 
-                // Calculate refund amount based on cancellation time
-                decimal refundPercentage = GetRefundPercentage(bookingResponseByID.CheckInDate, DateTime.Now);
-                decimal refundAmount = bookingResponseByID.FinalAmount * refundPercentage / 100;
+                decimal refundAmount = 0m;
 
+                if (bookingResponseByID.IsPaid == true)
+                {
+                    // Calculate refund amount based on cancellation time
+                    decimal refundPercentage = GetRefundPercentage(bookingResponseByID.CheckInDate, DateTime.Now);
+                    refundAmount = bookingResponseByID.FinalAmount * refundPercentage / 100;
+                }
 
                 Refund refund = new Refund()
                 {
@@ -77,7 +81,7 @@ namespace CancellationService.Services
                 if (!cancelResponseFromBookingService.IsSuccessStatusCode)
                 {
                     var errorContent = await cancelResponseFromBookingService.Content.ReadAsStringAsync();
-                    throw new Exception($"Failed to cancel booking. Status code: {cancelResponseFromBookingService.StatusCode}. Error: {errorContent}");
+                    throw new Exception($"Failed to cancel booking. Status code: {cancelResponseFromBookingService.StatusCode}");
                 }
 
                 var refundResult = await _refundRepo.Add(refund);
@@ -121,6 +125,8 @@ namespace CancellationService.Services
             }
         }
 
+
+
         private async Task checkUserActiveStatus(int currUserId, string token)
         {
             var userClient = _httpClientFactory.CreateClient("UserService");
@@ -147,6 +153,22 @@ namespace CancellationService.Services
             }
         }
 
+        public async Task<CancelReturnDTO> GetCancelDetailsByBookingId(int bookingId)
+        {
+            try
+            {
+                var results = await _cancelRepo.Get();
+                var cancelByBookingID = results.FirstOrDefault(c => c.BookingId == bookingId);
+                var refundResult = await _refundRepo.Get(cancelByBookingID.RefundId);
+                var returnResult =await MapCancelToCancelReturnDTO(cancelByBookingID, refundResult);
+                return returnResult;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         private async Task<CancelReturnDTO> MapCancelToCancelReturnDTO(Cancel cancelResponse, Refund refundResult)
         {
             CancelReturnDTO cancelReturn = new CancelReturnDTO()
@@ -169,7 +191,7 @@ namespace CancellationService.Services
 
             if (hoursDifference >= 100)
             {
-                return 100; // Full refund
+                return 100; 
             }
             else if (hoursDifference >= 75)
             {
@@ -189,7 +211,7 @@ namespace CancellationService.Services
             }
             else
             {
-                return 0; // No refund
+                return 0; 
             }
         }
 

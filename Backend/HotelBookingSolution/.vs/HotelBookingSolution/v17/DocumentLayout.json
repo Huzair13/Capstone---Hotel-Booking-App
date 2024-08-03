@@ -15,6 +15,10 @@
       "RelativeMoniker": "D:0:0:{B31DDA2D-AF3D-42BC-9476-772CD65C7803}|CancellationService\\CancellationService.csproj|solutionrelative:cancellationservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{B31DDA2D-AF3D-42BC-9476-772CD65C7803}|CancellationService\\CancellationService.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\cancellationservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B31DDA2D-AF3D-42BC-9476-772CD65C7803}|CancellationService\\CancellationService.csproj|solutionrelative:cancellationservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
@@ -30,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -39,6 +43,19 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\CancellationService\\Program.cs",
+              "RelativeDocumentMoniker": "CancellationService\\Program.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\CancellationService\\Program.cs",
+              "RelativeToolTip": "CancellationService\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-03T04:27:59.081Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -61,27 +78,27 @@
               "RelativeDocumentMoniker": "RatingServices\\appsettings.json",
               "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\RatingServices\\appsettings.json",
               "RelativeToolTip": "RatingServices\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2024-07-25T12:27:33.037Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\HotelBooking\\appsettings.json",
               "RelativeDocumentMoniker": "HotelBooking\\appsettings.json",
               "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\HotelBooking\\appsettings.json",
               "RelativeToolTip": "HotelBooking\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAEAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAADAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2024-07-25T12:27:17.203Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\appsettings.json",
               "RelativeDocumentMoniker": "BookingServices\\appsettings.json",

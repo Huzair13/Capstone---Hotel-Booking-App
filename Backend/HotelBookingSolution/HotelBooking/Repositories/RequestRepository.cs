@@ -53,9 +53,10 @@ namespace AuthenticationServices.Repositories
 
         public async Task<Request> Update(Request request)
         {
+            var existingRequest = await Get(request.Id);
             _context.Update(request);
             await _context.SaveChangesAsync();
-            var existingRequest = await Get(request.Id);
+            var updatedRequest = await Get(request.Id);
             return existingRequest;
         }
     }

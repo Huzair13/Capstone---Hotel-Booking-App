@@ -80,10 +80,10 @@ document.addEventListener('DOMContentLoaded', function () {
             userType: "Guest"
         };
 
-        fetch('https://localhost:7032/Register', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/Register', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(jsonInput)
         })

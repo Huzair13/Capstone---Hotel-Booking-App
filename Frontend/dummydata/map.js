@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAllHotels() {
         try {
             const token = getBearerToken();
-            const response = await fetch('https://localhost:7257/api/GetAllHotels', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllHotels', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

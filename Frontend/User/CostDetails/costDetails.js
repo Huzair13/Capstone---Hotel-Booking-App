@@ -11,6 +11,8 @@ if(!hotelId || !checkInDate || !checkOutDate || !numOfGuests || !numOfRooms){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    spinner.style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
     function isTokenExpired(token) {
         try {
             const decoded = jwt_decode(token);
@@ -31,10 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/Login/Login.html';
     }
 
-    fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            
         },
     })
         .then(response => {
@@ -47,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isActive) {
                 document.getElementById('deactivatedDiv').style.display = 'block';
                 document.getElementById('mainDiv').style.display = 'none';
+                document.body.style.background = "#748D92";
                 // window.location.href = "/Deactivated/deactivated.html"
             }
             console.log(isActive);
@@ -58,10 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
         
     document.getElementById('request-activation').addEventListener('click', function() {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
         .then(response => response.json())
@@ -81,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching requests:', error);
         });
     });
-
 
     function showRequestForm() {
         const modalHtml = `
@@ -111,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
         requestModal.show();
     
         document.getElementById('request-form').addEventListener('submit', function(event) {
+            document.getElementById('spinner').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
             event.preventDefault();
             const reason = document.getElementById('reason').value;
             
@@ -129,12 +135,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Request submitted successfully!');
                 requestModal.hide();
                 document.getElementById('requestModal').remove();
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             })
             .catch(error => {
                 console.error('Error submitting request:', error);
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             });
         });
     }
+
 
 });
 
@@ -146,12 +157,28 @@ document.getElementById('bookingDetails').innerHTML = `
     <div class="detail-item"><span>Number of Rooms:</span> <span>${numOfRooms}</span></div>
 `;
 
+
+function showAlert(message, type) {
+    document.getElementById('alertPlaceholder').style.display='block'
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.role = 'alert';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertPlaceholder.innerHTML = '';
+    alertPlaceholder.appendChild(alert);
+}
+
 // Fetch total amount
-fetch('https://localhost:7263/api/CalculateTotalAmount', {
+fetch('https://huzairhotelbookingapi.azure-api.net/Booking/api/CalculateTotalAmount', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        
     },
     body: JSON.stringify({
         hotelId: parseInt(hotelId),
@@ -163,6 +190,8 @@ fetch('https://localhost:7263/api/CalculateTotalAmount', {
 })
     .then(response => response.json())
     .then(data => {
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
         console.log(data)
         document.getElementById('totalAmount').innerHTML = `<div class="detail-item"><span>💸 Total Amount :</span> <span>₹${data.totalAmount}</span></div>`;
         document.getElementById('discount').innerHTML = `<div class="detail-item"><span>💸 Discount :</span> <span>₹${data.discount}</span></div>`;
@@ -172,7 +201,7 @@ fetch('https://localhost:7263/api/CalculateTotalAmount', {
 
             const button = document.getElementById('proceedToPay');
             const buttonText = document.getElementById('buttonText');
-            const spinner = document.getElementById('spinner');
+            const spinner = document.getElementById('spinner2');
 
             button.disabled = true;
             buttonText.style.display = 'none';
@@ -185,4 +214,10 @@ fetch('https://localhost:7263/api/CalculateTotalAmount', {
             spinner.style.display = 'none';
         });
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error =>{ 
+        console.error('Error:', error)
+        showAlert(error,'danger');
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
+    }
+);

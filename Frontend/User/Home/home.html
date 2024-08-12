@@ -10,16 +10,19 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap"
         rel="stylesheet">
+
+    <!--  FONTS  -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap"
+        rel="stylesheet" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400&display=swap"
+        rel="stylesheet" crossorigin="anonymous">
+
     <!-- FONT AWESOME  -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-    <!--  FONTS  -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="Home.css">
+    <link rel="shortcut icon" href="/Assets/book3.png" type="image/x-icon">
 </head>
 
 <body>
@@ -29,11 +32,12 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
+    <div id="alertPlaceholder" style="display: none;"></div>
     <div class="container-fluid" id="mainDiv">
         <!-- NAVBAR -->
         <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #2E3944;color: white;">
             <div class="container-fluid">
-                <a class="navbar-brand" href="Home.html">
+                <a class="navbar-brand" href="/User/UserHome/userHome.html">
                     <img src="/Assets/logo2.png" alt="Logo" width="200px" height="50px"
                         class="d-inline-block align-text-top img-fluid ms-3">
                 </a>
@@ -101,7 +105,7 @@
         <h1>Your Account is Temporarily Deactivated</h1>
         <p>It looks like your account is temporarily deactivated. If you believe this is a mistake or if you wish to
             request reactivation, please click the button below.</p>
-        <button id="request-activation" onclick="requestActivation()">Request Reactivation</button>
+        <button id="request-activation">Request Reactivation</button>
     </div>
 
 

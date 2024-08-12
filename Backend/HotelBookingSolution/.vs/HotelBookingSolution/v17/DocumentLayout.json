@@ -3,6 +3,46 @@
   "WorkspaceRootPath": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\controllers\\emailcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\controllers\\emailcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\migrations\\20240802043410_init.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\migrations\\20240802043410_init.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\migrations\\20240725094329_init.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\migrations\\20240725094329_init.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\migrations\\20240729051629_init.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\migrations\\20240729051629_init.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\migrations\\20240802043410_init.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\migrations\\20240802043410_init.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\migrations\\20240729051629_init.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\migrations\\20240729051629_init.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\migrations\\20240725094329_init.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\migrations\\20240725094329_init.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\bookingservices\\controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{847E3CEF-C943-4987-9C72-292CFBA28D00}|BookingServices\\BookingServices.csproj|solutionrelative:bookingservices\\controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{D548E313-3B0F-4369-BA51-DA0C43E852A9}|RatingServices\\RatingServices.csproj|c:\\users\\vc\\documents\\presido training 2\\capstoneproject\\backend\\hotelbookingsolution\\ratingservices\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{D548E313-3B0F-4369-BA51-DA0C43E852A9}|RatingServices\\RatingServices.csproj|solutionrelative:ratingservices\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
@@ -34,7 +74,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,7 +86,128 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "20240729051629_init.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240729051629_init.Designer.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Migrations\\20240729051629_init.Designer.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240729051629_init.Designer.cs",
+              "RelativeToolTip": "BookingServices\\Migrations\\20240729051629_init.Designer.cs",
+              "ViewState": "AQIAAFcAAAAAAAAAAAAiwHIAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:15:58.526Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "20240725094329_init.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240725094329_init.Designer.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Migrations\\20240725094329_init.Designer.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240725094329_init.Designer.cs",
+              "RelativeToolTip": "BookingServices\\Migrations\\20240725094329_init.Designer.cs",
+              "ViewState": "AQIAAFEAAAAAAAAAAAAiwGwAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:15:25.365Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Program.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Program.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Program.cs",
+              "RelativeToolTip": "BookingServices\\Program.cs",
+              "ViewState": "AQIAAC8AAAAAAAAAAAD4vzwAAAAUAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:11:35.212Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Services\\EmailService.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Services\\EmailService.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Services\\EmailService.cs",
+              "RelativeToolTip": "BookingServices\\Services\\EmailService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAEIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:03:20.361Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EmailController.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Controllers\\EmailController.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Controllers\\EmailController.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Controllers\\EmailController.cs",
+              "RelativeToolTip": "BookingServices\\Controllers\\EmailController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:08:41.843Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "20240802043410_init.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240802043410_init.Designer.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Migrations\\20240802043410_init.Designer.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240802043410_init.Designer.cs",
+              "RelativeToolTip": "BookingServices\\Migrations\\20240802043410_init.Designer.cs",
+              "ViewState": "AQIAAH0AAAAAAAAAAAAiwJgAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:16:04.181Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "20240802043410_init.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240802043410_init.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Migrations\\20240802043410_init.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240802043410_init.cs",
+              "RelativeToolTip": "BookingServices\\Migrations\\20240802043410_init.cs",
+              "ViewState": "AQIAAEoAAAAAAAAAAAAcwGQAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:16:26.408Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "20240729051629_init.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240729051629_init.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Migrations\\20240729051629_init.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240729051629_init.cs",
+              "RelativeToolTip": "BookingServices\\Migrations\\20240729051629_init.cs",
+              "ViewState": "AQIAACwAAAAAAAAAAAAcwEYAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:16:11.905Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "20240725094329_init.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240725094329_init.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Migrations\\20240725094329_init.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Migrations\\20240725094329_init.cs",
+              "RelativeToolTip": "BookingServices\\Migrations\\20240725094329_init.cs",
+              "ViewState": "AQIAACoAAAAAAAAAAAAcwEQAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:16:20.334Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "BookingController.cs",
+              "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Controllers\\BookingController.cs",
+              "RelativeDocumentMoniker": "BookingServices\\Controllers\\BookingController.cs",
+              "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\Controllers\\BookingController.cs",
+              "RelativeToolTip": "BookingServices\\Controllers\\BookingController.cs",
+              "ViewState": "AQIAAN8AAAAAAAAAAAAuwPMAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-04T16:08:03.217Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\CancellationService\\Program.cs",
               "RelativeDocumentMoniker": "CancellationService\\Program.cs",
@@ -54,12 +215,11 @@
               "RelativeToolTip": "CancellationService\\Program.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-03T04:27:59.081Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-03T04:27:59.081Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 12,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\CancellationService\\appsettings.json",
               "RelativeDocumentMoniker": "CancellationService\\appsettings.json",
@@ -67,25 +227,23 @@
               "RelativeToolTip": "CancellationService\\appsettings.json",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-26T12:09:19.792Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-26T12:09:19.792Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 10,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\RatingServices\\appsettings.json",
               "RelativeDocumentMoniker": "RatingServices\\appsettings.json",
               "ToolTip": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\RatingServices\\appsettings.json",
               "RelativeToolTip": "RatingServices\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAEAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-25T12:27:33.037Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-25T12:27:33.037Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 15,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\HotelBooking\\appsettings.json",
               "RelativeDocumentMoniker": "HotelBooking\\appsettings.json",
@@ -93,12 +251,11 @@
               "RelativeToolTip": "HotelBooking\\appsettings.json",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAADAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-25T12:27:17.203Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-25T12:27:17.203Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 14,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\BookingServices\\appsettings.json",
               "RelativeDocumentMoniker": "BookingServices\\appsettings.json",
@@ -106,12 +263,11 @@
               "RelativeToolTip": "BookingServices\\appsettings.json",
               "ViewState": "AQIAAAMAAAAAAAAAAAAAAAYAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-25T12:27:02.319Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-25T12:27:02.319Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 11,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\VC\\Documents\\Presido Training 2\\CapstoneProject\\Backend\\HotelBookingSolution\\HotelServices\\appsettings.json",
               "RelativeDocumentMoniker": "HotelServices\\appsettings.json",
@@ -119,8 +275,7 @@
               "RelativeToolTip": "HotelServices\\appsettings.json",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-25T12:26:44.216Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-25T12:26:44.216Z"
             }
           ]
         }

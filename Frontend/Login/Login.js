@@ -54,7 +54,7 @@
             const txtUid = userIdInput.value * 1;
             const txtPass = userPassInput.value;
 
-            fetch('https://localhost:7032/Login', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/Login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -69,6 +69,7 @@
                     setTimeout(() => {
                         login(data)
                         hideLoadingModal();
+                        // console.log(data);
                         if(data.role === "Admin"){
                             window.location.href ='/Admin/AdminHome/adminHome.html'
                         }

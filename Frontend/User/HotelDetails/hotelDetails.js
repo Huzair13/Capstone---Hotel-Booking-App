@@ -7,10 +7,11 @@ let userRatingsAll = []
 
 async function fetchUserRating(hotelId, userId) {
     try {
-        const response = await fetch(`https://localhost:7226/api/GetAllRating`, {
+        const response = await fetch(`https://huzairhotelbookingapi.azure-api.net/Rating/api/GetAllRating`, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                
             }
         });
 
@@ -96,17 +97,34 @@ function getQueryParam(param) {
     return urlParams.get(param);
 }
 
+function showAlert(message, type) {
+    document.getElementById('alertPlaceholder').style.display='block'
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.role = 'alert';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertPlaceholder.innerHTML = '';
+    alertPlaceholder.appendChild(alert);
+}
+
 async function fetchHotelDetails(hotelId) {
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
     try {
         const token = localStorage.getItem('token');
         const fetchOptions = {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                
             }
         };
 
-        const hotelResponse = await fetch(`https://localhost:7257/api/GetHotelByID/${hotelId}`, fetchOptions);
+        const hotelResponse = await fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetHotelByID/${hotelId}`, fetchOptions);
         const hotel = await hotelResponse.json();
 
         if (hotel) {
@@ -144,9 +162,9 @@ async function fetchHotelDetails(hotelId) {
             });
 
             const [roomsResponse, amenitiesResponse, reviewsResponse] = await Promise.all([
-                fetch('https://localhost:7257/api/GetAllRooms', fetchOptions),
-                fetch('https://localhost:7257/api/GetAllAmenities', fetchOptions),
-                fetch(`https://localhost:7226/api/GetRatingByHotelID/${hotelId}`, fetchOptions)
+                fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllRooms', fetchOptions),
+                fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAmenities', fetchOptions),
+                fetch(`https://huzairhotelbookingapi.azure-api.net/Rating/api/GetRatingByHotelID/${hotelId}`, fetchOptions)
             ]);
 
             const rooms = await roomsResponse.json();
@@ -212,7 +230,11 @@ async function fetchHotelDetails(hotelId) {
                 "Fan": "fas fa-fan",
                 "Geyser": "fas fa-tachometer-alt",
                 "Wifi": "fas fa-wifi",
-                "Play Station": "fas fa-gamepad"
+                "Play Station": "fas fa-gamepad",
+                'Pool': "fas fa-swimming-pool",
+                'Parking': "fas fa-parking",
+                'Gym': "fas fa-dumbbell",
+                'Restaurant': "fas fa-utensils"
             };
             const amenitiesContainer = document.getElementById('hotelAmenitiesValue');
             amenitiesContainer.innerHTML = Object.keys(amenitiesIcons)
@@ -223,6 +245,7 @@ async function fetchHotelDetails(hotelId) {
             // Populate reviews section
             const reviewsContainer = document.getElementById('reviewsContainer');
             reviewsContainer.innerHTML = '';
+            // <p class="review-feedback" data-full="${review.feedback}">${review.feedback.slice(0, 100)}</p>
             reviews.slice(0, 3).forEach(review => {
                 const date = new Date(review.createdAt).toLocaleDateString();
                 const time = new Date(review.createdAt).toLocaleTimeString();
@@ -230,9 +253,10 @@ async function fetchHotelDetails(hotelId) {
                 reviewElement.classList.add('review');
                 reviewElement.innerHTML = `
                     <div class="review-content">
-                        <div class="review-user">User ${review.userId}</div>
                         <div class="review-feedback">
-                            <p class="review-feedback" data-full="${review.feedback}">${review.feedback.slice(0, 100)}</p>
+                            <p class="review-feedback" data-full="${review.feedback ? review.feedback : 'No Feedback Provided'}">
+                            ${review.feedback ? review.feedback.slice(0, 100) : 'No Feedback'}
+                            </p>
                             <span class="expand-btn">Read More</span>
                         </div>
                     </div>
@@ -248,7 +272,13 @@ async function fetchHotelDetails(hotelId) {
                 document.getElementById('viewAllReviews').style.display = 'block';
             }
         }
+        
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     } catch (error) {
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
+        showAlert(error,'danger');
         console.error('Error fetching hotel details:', error);
     }
 }
@@ -311,6 +341,9 @@ function updateEmojis(rating) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/Login/Login.html';
@@ -320,10 +353,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/Login/Login.html';
     }
 
-    fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            
         },
     })
         .then(response => {
@@ -335,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(isActive => {
             if (!isActive) {
                 document.getElementById('deactivatedDiv').style.display = 'block';
+                document.body.style.background = "#748D92";
                 document.getElementById('mainDiv').style.display = 'none';
             }
             console.log(isActive);
@@ -390,13 +425,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const ratingValue = parseInt(document.getElementById('ratingValue').value);
         const feedback = document.getElementById('ratingFeedback').value;
         const token = localStorage.getItem('token');
+        const button = document.getElementById('submitRating');
+        const buttonText = document.getElementById('submitRatingText');
+        const spinner3 =document.getElementById('spinner4');
+
+        button.disabled = true;
+        buttonText.style.display = 'none';
+        spinner3.style.display = 'inline-block';
 
         try {
-            const response = await fetch('https://localhost:7226/api/AddRating', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Rating/api/AddRating', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    
                 },
                 body: JSON.stringify({
                     hotelId: parseInt(hotelId),
@@ -419,6 +462,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error submitting rating:', error);
         }
+        finally{
+            button.disabled = false;
+            buttonText.style.display = 'inline';
+            spinner3.style.display = 'none';
+        }
     });
 
     // Event listener for the form submission
@@ -426,13 +474,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const ratingValue = (document.getElementById('ratingUpdateValue').value);
         const feedback = document.getElementById('ratingUpdateFeedback').value;
         const token = localStorage.getItem('token');
+        const button = document.getElementById('submitUpdateRating');
+        const buttonText = document.getElementById('editText');
+        const spinner3 =document.getElementById('spinner3');
+        const icon = document.getElementById('editIcon');
+
+        button.disabled = true;
+        buttonText.style.display = 'none';
+        icon.style.display ='none';
+        spinner3.style.display = 'inline-block';
 
         try {
-            const response = await fetch(`https://localhost:7226/api/updateRating/${userRatingsAll.id}`, {
+            const response = await fetch(`https://huzairhotelbookingapi.azure-api.net/Rating/api/updateRating/${userRatingsAll.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    
                 },
                 body: JSON.stringify({
                     hotelId: parseInt(hotelId),
@@ -455,15 +513,22 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error submitting rating:', error);
         }
+        finally{
+            button.disabled = false;
+            buttonText.style.display = 'inline';
+            icon.style.display ='inline';
+            spinner3.style.display = 'none';
+        }
     });
 
 
     
     document.getElementById('request-activation').addEventListener('click', function() {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/GetAllRequests', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
         .then(response => response.json())
@@ -513,14 +578,17 @@ document.addEventListener('DOMContentLoaded', () => {
         requestModal.show();
     
         document.getElementById('request-form').addEventListener('submit', function(event) {
+            document.getElementById('spinner').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
             event.preventDefault();
             const reason = document.getElementById('reason').value;
             
-            fetch('https://localhost:7032/RequestForActivation', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify({
                     reason: reason
@@ -531,9 +599,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Request submitted successfully!');
                 requestModal.hide();
                 document.getElementById('requestModal').remove();
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             })
             .catch(error => {
                 console.error('Error submitting request:', error);
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             });
         });
     }
@@ -569,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const numRooms = document.getElementById('numRooms').value;
         const button = document.getElementById('checkAvailability');
         const buttonText = document.getElementById('buttonText');
-        const spinner = document.getElementById('spinner');
+        const spinner = document.getElementById('spinner2');
 
         // Show loading spinner and disable button
         button.disabled = true;
@@ -586,11 +658,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log(requestBody)
         try {
-            const response = await fetch('https://localhost:7257/api/CheckHotelAvailability', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/CheckHotelAvailability', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    
                 },
                 body: JSON.stringify(requestBody)
             });
@@ -623,6 +696,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (hotelId) {
         fetchHotelDetails(hotelId);
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     }
 
     document.getElementById('reviewsContainer').addEventListener('click', event => {

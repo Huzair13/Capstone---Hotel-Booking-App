@@ -27,9 +27,18 @@ body {
     border-radius: 50%;
 }
 
+/* NAVBAR  */
+@media (max-width : 200px) {
+    .navbar .navbar-nav {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
 @media (max-width: 991.98px) {
     .navbar .navbar-nav {
-        flex-direction: row;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
     }
@@ -51,11 +60,10 @@ body {
     }
 }
 
-@media (max-width : 200px) {
-    .navbar .navbar-nav {
-        flex-direction: column;
-        align-items: center;
-    }
+.navbar .fa-user-circle {
+    font-size: 1.5rem;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 nav {

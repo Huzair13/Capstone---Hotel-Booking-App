@@ -50,7 +50,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: `https://localhost:7257/api/AddImagesToHotel/${hotelId}`,
+            url: `https://huzairhotelbookingapi.azure-api.net/Hotel/api/AddImagesToHotel/${hotelId}`,
             headers :{
                 Authorization : `Bearer ${localStorage.getItem('token')}`
             },

@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+
     function isTokenExpired(token) {
         try {
             const decoded = jwt_decode(token);
@@ -25,10 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = "/User/UserHome/userHome.html";
     });
 
-    fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            
         },
     })
         .then(response => {
@@ -40,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(isActive => {
             if (!isActive) {
                 document.getElementById('deactivatedDiv').style.display = 'block';
+                document.body.style.background = "#748D92";
                 document.getElementById('mainDiv').style.display = 'none';
             }
             console.log(isActive);
@@ -50,10 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     document.getElementById('request-activation').addEventListener('click', function () {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/GetAllRequests', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
             .then(response => response.json())
@@ -106,11 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             const reason = document.getElementById('reason').value;
 
-            fetch('https://localhost:7032/RequestForActivation', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify({
                     reason: reason
@@ -137,10 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // const token = localStorage.getItem('token');
 
     // Fetch booking details using the bookingId
-    fetch(`https://localhost:7263/api/GetBookingById/${bookingId}`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/Booking/api/GetBookingByID/${bookingId}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            
         }
     })
         .then(response => response.json())
@@ -204,11 +212,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     link.click();
                 }
             });
+
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error)
+            showAlert('Error','danger')
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
+        });
 
 
 });
+
+function showAlert(message, type) {
+    document.getElementById('alertPlaceholder').style.display='block'
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.role = 'alert';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertPlaceholder.innerHTML = '';
+    alertPlaceholder.appendChild(alert);
+}
 
 document.getElementById('backToHome').addEventListener('click', function () {
     window.location.href = "/User/UserHome/userHome.html"

@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+
     const hotelsPerPage = 6;
     let currentPage = 1;
     let hotels = [];
@@ -55,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function fetchAllHotels() {
         try {
             const token = getBearerToken();
-            const response = await fetch('https://localhost:7257/api/GetAllHotels', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllHotels', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -72,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchAllAmenities() {
         try {
-            const response = await fetch('https://localhost:7257/api/GetAllAmenities', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAmenities', {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${getBearerToken()}`
@@ -88,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchAllRooms() {
         try {
-            const response = await fetch('https://localhost:7257/api/GetAllRooms', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllRooms', {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${getBearerToken()}`
@@ -161,6 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="row">
                                 <div class="col-md-6 text-center">
                                     ${adddressTextHtml}
+                                    <p><a href="tel:${hotel.contactNumber}" class="phone-link"><i class="fas fa-phone"></i> ${hotel.contactNumber}</a></p>
                                     <div class="hotel-amenities mt-3">
                                     <div id="hotelAmenitiesValue"
                                         class="amenities-icons d-flex justify-content-center">
@@ -264,7 +268,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         displayHotels(hotels.slice(0, hotelsPerPage), amenitiesMap);
         renderPagination(hotels.length, hotelsPerPage, currentPage);
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     }
 
-    init();
+    await init();
+    document.getElementById('spinner').style.display = 'none'; 
+    document.getElementById('overlay').style.display = 'none';
 });

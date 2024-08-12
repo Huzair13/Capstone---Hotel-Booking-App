@@ -125,7 +125,7 @@ body {
 
 @media (max-width: 991.98px) {
     .navbar .navbar-nav {
-        flex-direction: row;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
     }
@@ -156,4 +156,24 @@ body {
 
 nav {
     background: #ECECEC;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1040;
+    display: none;
+}
+
+.spinner-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    display: none;
 }

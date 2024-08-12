@@ -35,6 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('hotelId').value = hotelId;
 
     document.getElementById('addRoomForm').addEventListener('submit', function (event) {
+        document.getElementById('spinner').style.display = 'block'; 
+        document.getElementById('overlay').style.display = 'block';
         event.preventDefault();
 
         const roomDTO = {
@@ -46,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
             Rent: parseFloat(document.getElementById('rent').value)
         };
 
-        fetch(`https://localhost:7257/api/AddRoomToHotel/${roomDTO.HotelId}`, {
+        fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/AddRoomToHotel/${roomDTO.HotelId}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -63,10 +65,14 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => {
                 showAlert('Room added successfully!', 'success');
                 window.location.href=`/Admin/ManageOptions/manageOptions.html?hotelId=${hotelId}`
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             })
             .catch(error => {
                 const errorMessage = error && error.Message ? error.Message : 'An error occurred while adding the room.';
                 showAlert(errorMessage, 'danger');
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             });
     });
 

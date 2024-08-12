@@ -42,17 +42,21 @@ document.addEventListener("DOMContentLoaded", function () {
         "Fan": "fas fa-fan",
         "Geyser": "fas fa-tachometer-alt",
         "Wifi": "fas fa-wifi",
-        "Play Station": "fas fa-gamepad"
+        "Play Station": "fas fa-gamepad",
+        'Pool': "fas fa-swimming-pool",
+        'Parking': "fas fa-parking",
+        'Gym': "fas fa-dumbbell",
+        'Restaurant': "fas fa-utensils"
     };
 
     function fetchHotelAndAmenities() {
         Promise.all([
-            fetch(`https://localhost:7257/api/GetAllAmenities`, {
+            fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAmenities`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             }).then(response => response.json()),
-            fetch(`https://localhost:7257/api/GetHotelByID/${hotelId}`, {
+            fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetHotelByID/${hotelId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -88,7 +92,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.getElementById('amenitiesForm').addEventListener('submit', function (event) {
+
         event.preventDefault();
+        document.getElementById('spinner').style.display = 'block'; 
+        document.getElementById('overlay').style.display = 'block';
 
         const selectedAmenities = [];
         document.querySelectorAll('#amenitiesList input:checked').forEach(checkbox => {
@@ -105,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
             AmenityIds: selectedAmenities
         };
 
-        fetch('https://localhost:7257/api/DeleteAmenityFromHotel', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/DeleteAmenityFromHotel', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -118,12 +125,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json().then(error => Promise.reject(error));
             }
             return response.json();
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
         })
         .then(response => {
             showAlert('Amenities removed successfully!', 'success');
             window.location.href=`/Admin/ManageOptions/manageOptions.html?hotelId=${hotelId}`
         })
         .catch(error => {
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
             const errorMessage = error && error.Message ? error.Message : 'An error occurred while removing amenities.';
             showAlert(errorMessage, 'danger');
         });

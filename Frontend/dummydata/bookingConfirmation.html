@@ -21,7 +21,7 @@
         const token = localStorage.getItem('token');
         
         // Fetch booking details using the bookingId
-        fetch(`https://localhost:7263/api/GetBookingById/${bookingId}`, {
+        fetch(`https://huzairhotelbookingapi.azure-api.net/Booking/api/GetBookingByID/${bookingId}`, {
             method: 'GET',
             headers: {
                 'Authorization':  `Bearer ${token}`

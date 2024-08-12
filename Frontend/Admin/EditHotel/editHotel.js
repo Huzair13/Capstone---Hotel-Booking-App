@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (hotelId) {
         // Fetch hotel details
-        fetch(`https://localhost:7257/api/GetHotelByID/${hotelId}`, {
+        fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetHotelByID/${hotelId}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`
@@ -55,6 +55,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('editHotelForm').addEventListener('submit', function (e) {
         e.preventDefault();
+        document.getElementById('spinner').style.display = 'block'; 
+        document.getElementById('overlay').style.display = 'block';
         const formData = new FormData(e.target);
         var sendData = {
             HotelId: document.getElementById('hotelId').value,
@@ -66,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
             Description: document.getElementById('hotelDescription').value
         }
         const data = Object.fromEntries(formData.entries());
-        fetch('https://localhost:7257/api/UpdateHotel', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/UpdateHotel', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -81,10 +83,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     alert('Failed to update hotel.');
                 }
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             })
             .catch(error => {
                 console.error('Error updating hotel:', error);
                 alert('An error occurred while updating the hotel.');
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             });
     });
 });

@@ -1,8 +1,9 @@
 document.getElementById('hotelForm').addEventListener('submit', async function (event) {
     event.preventDefault();
-    spinner.style.display = 'block'; 
 
-
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+    
     const formData = new FormData(this);
     const files = document.getElementById('images').files;
 
@@ -10,7 +11,7 @@ document.getElementById('hotelForm').addEventListener('submit', async function (
         formData.append('files', files[i]);
     }
     try {
-        const response = await fetch('https://localhost:7257/api/AddHotel', {
+        const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/AddHotel', {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -28,6 +29,9 @@ document.getElementById('hotelForm').addEventListener('submit', async function (
     } catch (error) {
         console.error('Error:', error);
         alert('An error occurred');
+    }finally{
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     }
 });
 

@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchRooms(hotelId);
 
     function fetchRooms(hotelId) {
-        fetch(`https://localhost:7257/api/GetRoomsByHotelID/${hotelId}`, {
+        fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetRoomsByHotelID/${hotelId}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -104,7 +104,7 @@ container.innerHTML = tableHtml;
 }
 
     window.removeRoom = function (roomNumber) {
-        fetch(`https://localhost:7257/api/RemoveRoomFromHotel`, {
+        fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/RemoveRoomFromHotel`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

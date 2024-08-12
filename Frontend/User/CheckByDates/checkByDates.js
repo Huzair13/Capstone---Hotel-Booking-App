@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    spinner.style.display = 'block'; 
+    document.getElementById('spinner').style.display = 'block'; 
     document.getElementById('overlay').style.display = 'block';
 
     const hotelsPerPage = 6;
@@ -56,11 +56,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/Login/Login.html';
     });
 
+
+    function showAlert(message, type) {
+        document.getElementById('alertPlaceholder').style.display='block'
+        const alertPlaceholder = document.getElementById('alertPlaceholder');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.role = 'alert';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        alertPlaceholder.innerHTML = '';
+        alertPlaceholder.appendChild(alert);
+    }
+
     try {
-        const response = await fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+        const response = await fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                
             },
         });
 
@@ -70,6 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isActive = await response.json();
         if (!isActive) {
             document.getElementById('deactivatedDiv').style.display = 'block';
+            document.body.style.background = "#748D92";
             document.getElementById('mainDiv').style.display = 'none';
             document.getElementById('footer').display.style ='none';
         }
@@ -78,9 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const cityDropdown = document.getElementById('cityDropdown');
-    fetch('https://localhost:7257/api/GetHotelCity', {
+    fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetHotelCity', {
         headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            
         }
     })
         .then(response => response.json())
@@ -106,27 +124,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function fetchAllHotels(queryParams) {
         try {
             const token = getBearerToken();
-            const response = await fetch(`https://localhost:7257/api/GetAllAvailableHotelsByDate?checkInDate=${queryParams.checkInDate}&checkOutDate=${queryParams.checkOutDate}`, {
+            const response = await fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAvailableHotelsByDate?checkInDate=${queryParams.checkInDate}&checkOutDate=${queryParams.checkOutDate}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 }
             });
             if (!response.ok) throw new Error('Network response was not ok');
             return await response.json();
         } catch (error) {
             console.error('Error fetching hotels:', error.message);
-            alert('An error occurred while fetching hotels. Please try again later.');
+            showAlert('An error occurred while fetching hotels. Please try again later.','danger');
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
             return [];
         }
     }
 
     
     document.getElementById('request-activation').addEventListener('click', function() {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/GetAllRequests', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
         .then(response => response.json())
@@ -144,6 +166,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
         .catch(error => {
             console.error('Error fetching requests:', error);
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
         });
     });
 
@@ -176,14 +200,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         requestModal.show();
     
         document.getElementById('request-form').addEventListener('submit', function(event) {
+            document.getElementById('spinner').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
             event.preventDefault();
             const reason = document.getElementById('reason').value;
             
-            fetch('https://localhost:7032/RequestForActivation', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify({
                     reason: reason
@@ -194,41 +221,53 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('Request submitted successfully!');
                 requestModal.hide();
                 document.getElementById('requestModal').remove();
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             })
             .catch(error => {
                 console.error('Error submitting request:', error);
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             });
         });
     }
 
     async function fetchAllAmenities() {
         try {
-            const response = await fetch('https://localhost:7257/api/GetAllAmenities', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAmenities', {
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${getBearerToken()}`
+                    Authorization: `Bearer ${getBearerToken()}`,
+                    
                 }
             });
             if (!response.ok) throw new Error('Network response was not ok');
             return await response.json();
         } catch (error) {
             console.error('Error fetching amenities:', error.message);
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
+            shoqAlert("Error Fetching amenities",error)
             return [];
         }
     }
 
     async function fetchAllRooms() {
         try {
-            const response = await fetch('https://localhost:7257/api/GetAllRooms', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllRooms', {
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${getBearerToken()}`
+                    Authorization: `Bearer ${getBearerToken()}`,
+                    
                 }
             });
             if (!response.ok) throw new Error('Network response was not ok');
             return await response.json();
         } catch (error) {
             console.error('Error fetching rooms:', error.message);
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
+            showAlert('Error Fetching Rooms','danger')
             return [];
         }
     }
@@ -292,6 +331,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="row">
                             <div class="col-md-6 text-center">
                                 ${adddressTextHtml}
+                                <p><a href="tel:${hotel.contactNumber}" class="phone-link"><i class="fas fa-phone"></i> ${hotel.contactNumber}</a></p>
                                 <div class="hotel-amenities mt-3">
                                     <div id="hotelAmenitiesValue"
                                         class="amenities-icons d-flex justify-content-center">
@@ -352,85 +392,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderPagination(hotels.length, hotelsPerPage, currentPage);
 
     });
-
-    document.getElementById('request-activation').addEventListener('click', function() {
-        fetch('https://localhost:7032/GetAllRequests', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(requests => {
-            const userId = localStorage.getItem('userID');
-            const isRequested = requests.some(request => 
-                request.userId === userId && request.status === 'Requested'
-            );
-    
-            if (isRequested) {
-                alert('You have already requested.');
-            } else {
-                showRequestForm();
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching requests:', error);
-        });
-    });
-
-
-    function showRequestForm() {
-        const modalHtml = `
-            <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="requestModalLabel">Submit Request</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="request-form">
-                                <div class="mb-3">
-                                    <label for="reason" class="form-label">Reason:</label>
-                                    <input type="text" class="form-control" id="reason" name="reason" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Submit Request</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
-        const requestModal = new bootstrap.Modal(document.getElementById('requestModal'));
-        requestModal.show();
-    
-        document.getElementById('request-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const reason = document.getElementById('reason').value;
-            
-            fetch('https://localhost:7032/RequestForActivation', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    reason: reason
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Request submitted successfully!');
-                requestModal.hide();
-                document.getElementById('requestModal').remove();
-            })
-            .catch(error => {
-                console.error('Error submitting request:', error);
-            });
-        });
-    }
 
 
     function renderPagination(totalHotels, hotelsPerPage, currentPage) {
@@ -525,7 +486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(hotels)
         displayHotels(hotels.slice(0, hotelsPerPage), amenitiesMap);
         renderPagination(hotels.length, hotelsPerPage, currentPage);
-        spinner.style.display = 'none'; 
+        document.getElementById('spinner').style.display = 'none'; 
         document.getElementById('overlay').style.display = 'none';
     }
 
@@ -557,9 +518,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         displayHotels(hotels.slice(0, hotelsPerPage), amenitiesMap);
         renderPagination(hotels.length, hotelsPerPage, currentPage);
-        spinner.style.display = 'none'; 
+        document.getElementById('spinner').style.display = 'none'; 
         document.getElementById('overlay').style.display = 'none';
     }
 
-    init();
+    await init();
+    document.getElementById('spinner').style.display = 'none'; 
+    document.getElementById('overlay').style.display = 'none';
 });
+

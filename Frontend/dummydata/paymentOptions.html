@@ -29,7 +29,7 @@
         const token = localStorage.getItem('token');
 
         document.getElementById('codButton').addEventListener('click', () => {
-            fetch('https://localhost:7263/api/AddBooking', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/Booking/api/AddBooking', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

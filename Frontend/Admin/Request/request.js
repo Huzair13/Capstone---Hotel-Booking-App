@@ -1,9 +1,8 @@
-const apiUrl = 'https://localhost:7032';
+const apiUrl = 'https://huzairhotelbookingapi.azure-api.net';
 let currentAction = '';
 let requestIdToProcess = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-
     function isTokenExpired(token) {
         try {
             const decoded = jwt_decode(token);
@@ -50,7 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchRequests(status) {
-    fetch(`${apiUrl}/GetAllRequests`, {
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+
+    fetch(`https://huzairhotelbookingapi.azure-api.net/GetAllRequests`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -59,14 +61,22 @@ function fetchRequests(status) {
     })
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
             return response.json();
         })
         .then(data => {
             console.log(data);
             const filteredData = status === 'All' ? data.filter(req => req.status === "Requested") : data.filter(req => req.status === status);
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
             displayRequests(filteredData);
         })
-        .catch(error => console.error('Error fetching requests:', error));
+        .catch(error => {
+            console.error('Error fetching requests:', error)
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
+        });
 }
 
 function displayRequests(requests) {

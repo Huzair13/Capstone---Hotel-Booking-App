@@ -23,8 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-
-
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/Login/Login.html';
@@ -34,10 +32,11 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = '/Login/Login.html';
     }
 
-    fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            
         },
     })
         .then(response => {
@@ -49,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(isActive => {
             if (!isActive) {
                 document.getElementById('deactivatedDiv').style.display = 'block';
+                document.body.style.background = "#748D92";
                 document.getElementById('mainDiv').style.display = 'none';
             }
             console.log(isActive);
@@ -120,18 +120,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document.getElementById('request-activation').addEventListener('click', function () {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/GetAllRequests', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
             .then(response => response.json())
             .then(requests => {
                 const userId = localStorage.getItem('userID');
-                const isRequested = requests.some(request =>
-                    request.userId === userId && request.status === 'Requested'
-                );
+                const isRequested = requests.some(request => {
+                    return request.userId == userId && request.status === "Requested"; // added return statement
+                });
+                console.log(isRequested);
 
                 if (isRequested) {
                     alert('You have already requested.');
@@ -173,14 +175,17 @@ document.addEventListener("DOMContentLoaded", function () {
         requestModal.show();
 
         document.getElementById('request-form').addEventListener('submit', function (event) {
+            document.getElementById('spinner').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
             event.preventDefault();
             const reason = document.getElementById('reason').value;
 
-            fetch('https://localhost:7032/RequestForActivation', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify({
                     reason: reason
@@ -191,9 +196,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert('Request submitted successfully!');
                     requestModal.hide();
                     document.getElementById('requestModal').remove();
+                    document.getElementById('spinner').style.display = 'none'; 
+                    document.getElementById('overlay').style.display = 'none';
                 })
                 .catch(error => {
                     console.error('Error submitting request:', error);
+                    document.getElementById('spinner').style.display = 'none'; 
+                    document.getElementById('overlay').style.display = 'none';
                 });
         });
     }

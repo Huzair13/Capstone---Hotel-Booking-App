@@ -454,7 +454,7 @@
 
         async function fetchHotelDetails(hotelId) {
             try {
-                const hotelResponse = await fetch(`https://localhost:7257/api/GetHotelByID/${hotelId}`);
+                const hotelResponse = await fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetHotelByID/${hotelId}`);
                 const hotel = await hotelResponse.json();
 
                 if (hotel) {
@@ -493,9 +493,9 @@
 
                     // Fetch and display additional details
                     const [roomsResponse, amenitiesResponse, reviewsResponse] = await Promise.all([
-                        fetch('https://localhost:7257/api/GetAllRooms'),
-                        fetch('https://localhost:7257/api/GetAllAmenities'),
-                        fetch(`https://localhost:7226/api/GetRatingByHotelID/${hotelId}`)
+                        fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllRooms'),
+                        fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAmenities'),
+                        fetch(`https://huzairhotelbookingapi.azure-api.net/Rating/api/GetRatingByHotelID/${hotelId}`)
                     ]);
 
                     const rooms = await roomsResponse.json();
@@ -653,11 +653,12 @@
 
                 console.log(requestBody)
                 try {
-                    const response = await fetch('https://localhost:7257/api/CheckHotelAvailability', {
+                    const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/CheckHotelAvailability', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': token 
+                            'Authorization': `Bearer ${token}` 
+
                         },
                         body: JSON.stringify(requestBody)
                     });

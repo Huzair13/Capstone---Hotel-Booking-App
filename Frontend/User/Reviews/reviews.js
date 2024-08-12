@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+
     function isTokenExpired(token) {
         try {
             const decoded = jwt_decode(token);
@@ -20,10 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/Login/Login.html';
     }
 
-    fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            
         },
     })
         .then(response => {
@@ -35,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(isActive => {
             if (!isActive) {
                 document.getElementById('deactivatedDiv').style.display = 'block';
+                document.body.style.background = "#748D92";
                 document.getElementById('mainDiv').style.display = 'none';
                 // window.location.href = "/Deactivated/deactivated.html"
             }
@@ -47,10 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
         
     document.getElementById('request-activation').addEventListener('click', function() {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/GetAllRequests', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
         .then(response => response.json())
@@ -100,14 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
         requestModal.show();
     
         document.getElementById('request-form').addEventListener('submit', function(event) {
+            document.getElementById('spinner').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
             event.preventDefault();
             const reason = document.getElementById('reason').value;
             
-            fetch('https://localhost:7032/RequestForActivation', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify({
                     reason: reason
@@ -118,9 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Request submitted successfully!');
                 requestModal.hide();
                 document.getElementById('requestModal').remove();
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             })
             .catch(error => {
                 console.error('Error submitting request:', error);
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
             });
         });
     }
@@ -144,6 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
    
     if (hotelId) {
         fetchReviews(hotelId);
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
 
         document.getElementById('latestReview').addEventListener('click', () => fetchReviews(hotelId, 'latest'));
         document.getElementById('oldReview').addEventListener('click', () => fetchReviews(hotelId, 'old'));
@@ -175,9 +190,10 @@ function formatDateTime(dateString) {
 
 async function fetchReviews(hotelId, sortOption = 'latest') {
     try {
-        const response = await fetch(`https://localhost:7226/api/GetRatingByHotelID/${hotelId}`,{
+        const response = await fetch(`https://huzairhotelbookingapi.azure-api.net/Rating/api/GetRatingByHotelID/${hotelId}`,{
             headers : {
-                Authorization : `Bearer ${localStorage.getItem('token')}`
+                Authorization : `Bearer ${localStorage.getItem('token')}`,
+                
             }
         });
         let reviews = await response.json();
@@ -222,8 +238,12 @@ async function fetchReviews(hotelId, sortOption = 'latest') {
             reviewCount.textContent = 'No reviews found';
             noReviewsDiv.style.display = 'block';
         }
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     } catch (error) {
         console.error('Error fetching reviews:', error);
         document.getElementById('reviewsContainer').innerHTML = '<p>Failed to load reviews.</p>';
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     }
 }

@@ -1,10 +1,12 @@
 document.getElementById('updateRoleForm').addEventListener('submit', async function (event) {
     event.preventDefault();
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
     const userId = document.getElementById('userId').value;
     const userRole = document.getElementById('userRole').value;
 
     try {
-        const response = await fetch(`https://localhost:7032/UpdateUserRole?userId=${userId}&userRole=${userRole}`, {
+        const response = await fetch(`https://huzairhotelbookingapi.azure-api.net/UpdateUserRole?userId=${userId}&userRole=${userRole}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -20,6 +22,9 @@ document.getElementById('updateRoleForm').addEventListener('submit', async funct
         }
     } catch (error) {
         alert('An unexpected error occurred');
+    }finally{
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     }
 });
 

@@ -36,12 +36,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function fetchHotelAndAmenities() {
         Promise.all([
-            fetch(`https://localhost:7257/api/GetAllAmenities`, {
+            fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAmenities`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`                }
             }).then(response => response.json()),
-            fetch(`https://localhost:7257/api/GetHotelByID/${hotelId}`, {
+            fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetHotelByID/${hotelId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -63,7 +62,11 @@ document.addEventListener("DOMContentLoaded", function () {
         "Fan": "fas fa-fan",
         "Geyser": "fas fa-tachometer-alt",
         "Wifi": "fas fa-wifi",
-        "Play Station": "fas fa-gamepad"
+        "Play Station": "fas fa-gamepad",
+        'Pool': "fas fa-swimming-pool",
+        'Parking': "fas fa-parking",
+        'Gym': "fas fa-dumbbell",
+        'Restaurant': "fas fa-utensils"
     };
 
     function displayAmenities(amenities) {
@@ -87,6 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     document.getElementById('amenitiesForm').addEventListener('submit', function (event) {
+        document.getElementById('spinner').style.display = 'block'; 
+        document.getElementById('overlay').style.display = 'block';
         event.preventDefault();
 
         const selectedAmenities = [];
@@ -104,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             amenityIds: selectedAmenities
         };
 
-        fetch('https://localhost:7257/api/AddAmenitiesToHotel', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/AddAmenitiesToHotel', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -120,9 +125,13 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(response => {
                 showAlert('Amenities added successfully!', 'success');
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
                 window.location.href=`/Admin/ManageOptions/manageOptions.html?hotelId=${hotelId}`;
             })
             .catch(error => {
+                document.getElementById('spinner').style.display = 'none'; 
+                document.getElementById('overlay').style.display = 'none';
                 const errorMessage = error && error.Message ? error.Message : 'An error occurred while adding amenities.';
                 showAlert(errorMessage, 'danger');
             });

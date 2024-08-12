@@ -32,10 +32,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+        const response = await fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                
             },
         });
 
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isActive = await response.json();
         if (!isActive) {
             document.getElementById('deactivatedDiv').style.display = 'block';
+            document.body.style.background = "#748D92";
             document.getElementById('mainDiv').style.display = 'none';
         }
         console.log(isActive)
@@ -55,10 +57,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     document.getElementById('request-activation').addEventListener('click', function () {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/GetAllRequests', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
             .then(response => response.json())
@@ -81,6 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     function showRequestForm() {
+
         const modalHtml = `
             <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -108,14 +112,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         requestModal.show();
 
         document.getElementById('request-form').addEventListener('submit', function (event) {
+            document.getElementById('spinner').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
             event.preventDefault();
             const reason = document.getElementById('reason').value;
 
-            fetch('https://localhost:7032/RequestForActivation', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify({
                     reason: reason
@@ -124,17 +131,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .then(response => response.json())
                 .then(data => {
                     alert('Request submitted successfully!');
+                    showAlert("Request Submitted",'success')
                     requestModal.hide();
                     document.getElementById('requestModal').remove();
+                    document.getElementById('spinner').style.display = 'none'; 
+                    document.getElementById('overlay').style.display = 'none';
                 })
                 .catch(error => {
                     console.error('Error submitting request:', error);
+                    document.getElementById('spinner').style.display = 'none'; 
+                    document.getElementById('overlay').style.display = 'none';
                 });
         });
     }
 });
 
 
+function showAlert(message, type) {
+    document.getElementById('alertPlaceholder').style.display='block'
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.role = 'alert';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertPlaceholder.innerHTML = '';
+    alertPlaceholder.appendChild(alert);
+}
 
 // Check if the dates are in the past
 if (checkIn < currentDate || checkOut < currentDate) {
@@ -220,7 +245,7 @@ if (checkIn < currentDate || checkOut < currentDate) {
             document.getElementById('countdown').textContent = countdown;
             if (countdown === 0) {
                 clearInterval(countdownInterval);
-                window.location.href = 'index.html';
+                window.location.href = `/User/HotelDetails/hotelDetails.html?hotelId=${hotelId}`;
             }
         }, 1000);
     }

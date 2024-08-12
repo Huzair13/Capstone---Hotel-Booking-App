@@ -8,6 +8,9 @@ let originalBookings = [];
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+
     function isTokenExpired(token) {
         try {
             const decoded = jwt_decode(token);
@@ -30,10 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/Login/Login.html';
     }
 
-    fetch(`https://localhost:7032/IsActive/${localStorage.getItem('userID')}`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/IsActive/${localStorage.getItem('userID')}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            
         },
     })
         .then(response => {
@@ -45,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(isActive => {
             if (!isActive) {
                 document.getElementById('deactivatedDiv').style.display = 'block';
+                document.body.style.background = "#748D92";
                 document.getElementById('mainDiv').style.display = 'none';
-                document.getElementById('footer').display.style = 'none';
+                document.getElementById('footer').style.display = 'none';
                 // window.location.href = "/Deactivated/deactivated.html"
             }
             console.log(isActive);
@@ -73,11 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Fetch bookings for the user
-    fetch(`https://localhost:7263/api/GetBookingByUser`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/Booking/api/GetBookingByUser`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            
         }
     })
         .then(response => {
@@ -91,16 +97,19 @@ document.addEventListener('DOMContentLoaded', () => {
             originalBookings = data;
             displayBooking(data.slice(0, bookingsPerPage));
             renderPagination(data.length, bookingsPerPage, currentPage)
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
         })
         .catch(error => console.error('Error:', error));
 
 
 
     document.getElementById('request-activation').addEventListener('click', function () {
-        fetch('https://localhost:7032/GetAllRequests', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/GetAllRequests', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                
             }
         })
             .then(response => response.json())
@@ -150,14 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
         requestModal.show();
 
         document.getElementById('request-form').addEventListener('submit', function (event) {
+            document.getElementById('spinner').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
             event.preventDefault();
             const reason = document.getElementById('reason').value;
 
-            fetch('https://localhost:7032/RequestForActivation', {
+            fetch('https://huzairhotelbookingapi.azure-api.net/RequestForActivation', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 },
                 body: JSON.stringify({
                     reason: reason
@@ -168,9 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Request submitted successfully!');
                     requestModal.hide();
                     document.getElementById('requestModal').remove();
+                    document.getElementById('spinner').style.display = 'none'; 
+                    document.getElementById('overlay').style.display = 'none';
                 })
                 .catch(error => {
                     console.error('Error submitting request:', error);
+                    document.getElementById('spinner').style.display = 'none'; 
+                    document.getElementById('overlay').style.display = 'none';
                 });
         });
     }
@@ -184,11 +200,12 @@ function getUserIdFromToken(token) {
 }
 // Function to handle booking cancellation
 function handleCancelBooking(bookingId) {
-    fetch(`https://localhost:7263/api/GetUserCancellationCount`, {
+    fetch(`https://huzairhotelbookingapi.azure-api.net/Booking/api/GetUserCancellationCount`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            
         }
     })
         .then(response => {
@@ -217,11 +234,14 @@ function handleCancelBooking(bookingId) {
 
 // Function to cancel booking
 function cancelBooking(bookingId) {
-    fetch(`https://localhost:7276/api/CancelBooking/${bookingId}`, {
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
+    fetch(`https://huzairhotelbookingapi.azure-api.net/Cancel/api/CancelBooking/${bookingId}`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            
         }
     })
         .then(response => {
@@ -232,17 +252,24 @@ function cancelBooking(bookingId) {
         })
         .then(data => {
             alert('Booking cancelled successfully.');
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
             window.location.reload();
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error)
+            document.getElementById('spinner').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none';
+        });
 }
 
 function fetchRefundAmount(bookingId) {
-    return fetch(`https://localhost:7276/api/GetCancelByBookingID/${bookingId}`, {
+    return fetch(`https://huzairhotelbookingapi.azure-api.net/Cancel/api/GetCancelByBookingID/${bookingId}`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            
         }
     })
         .then(response => {
@@ -368,7 +395,9 @@ function displayBooking(data) {
                 <p><strong>Discount:</strong> $${booking.discount}</p>
                 <p><strong>Final Amount:</strong> $${booking.finalAmount}</p>
                 <p><strong>Allocated Rooms:</strong> ${booking.roomNumbers ? booking.roomNumbers.join(', ') : 'Not available'}</p>
-                <p><strong>Payment Mode:</strong> ${booking.paymentMode}</p>
+                <p><strong>Payment Mode:</strong> 
+                    ${booking.paymentMode === 0 ? 'offline' : 'online'}
+                </p>
                 <p><strong>Payment Status:</strong> ${booking.isPaid ? "Completed" : "Not Completed"}</p>
                 <div class="d-flex justify-content-between flex-wrap flex-column flex-md-row"><strong>Status:</strong> <div class="${statusClass}"><span>${booking.isCancelled ? 'Cancelled' : 'Active'}</span></div></div>
                 ${cancelButton}

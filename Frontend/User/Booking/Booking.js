@@ -33,10 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAllHotels() {
         try {
             const token = getBearerToken();
-            const response = await fetch('https://localhost:7257/api/GetAllHotels', {
+            const response = await fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllHotels', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 }
             });
             if (!response.ok) throw new Error('Network response was not ok');
@@ -100,10 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             searchResults.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>'; // Show loading spinner
             const token = getBearerToken();
-            const response = await fetch(`https://localhost:7257/api/GetAvailableHotelsRooms?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&numberOfGuests=${numberOfGuests}`, {
+            const response = await fetch(`
+                https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAvailableHotelsRooms?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&numberOfGuests=${numberOfGuests}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    
                 }
             });
             if (!response.ok) throw new Error('Network response was not ok');

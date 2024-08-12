@@ -13,7 +13,7 @@ async function fetchHotelDetails(hotelId) {
             }
         };
 
-        const hotelResponse = await fetch(`https://localhost:7257/api/GetHotelByID/${hotelId}`, fetchOptions);
+        const hotelResponse = await fetch(`https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetHotelByID/${hotelId}`, fetchOptions);
         const hotel = await hotelResponse.json();
 
         if (hotel) {
@@ -53,9 +53,9 @@ async function fetchHotelDetails(hotelId) {
 
 
             const [roomsResponse, amenitiesResponse, reviewsResponse] = await Promise.all([
-                fetch('https://localhost:7257/api/GetAllRooms', fetchOptions),
-                fetch('https://localhost:7257/api/GetAllAmenities', fetchOptions),
-                fetch(`https://localhost:7226/api/GetRatingByHotelID/${hotelId}`, fetchOptions)
+                fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllRooms', fetchOptions),
+                fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/GetAllAmenities', fetchOptions),
+                fetch(`https://huzairhotelbookingapi.azure-api.net/Rating/api/GetRatingByHotelID/${hotelId}`, fetchOptions)
             ]);
 
             const rooms = await roomsResponse.json();
@@ -114,14 +114,17 @@ async function fetchHotelDetails(hotelId) {
             }
 
             starRatings.innerHTML = starsHTML;
-
             const amenitiesIcons = {
                 "AC": "fas fa-snowflake",
                 "TV": "fas fa-tv",
                 "Fan": "fas fa-fan",
                 "Geyser": "fas fa-tachometer-alt",
                 "Wifi": "fas fa-wifi",
-                "Play Station": "fas fa-gamepad"
+                "Play Station": "fas fa-gamepad",
+                'Pool': "fas fa-swimming-pool",
+                'Parking': "fas fa-parking",
+                'Gym': "fas fa-dumbbell",
+                'Restaurant': "fas fa-utensils"
             };
             const amenitiesContainer = document.getElementById('hotelAmenitiesValue');
             amenitiesContainer.innerHTML = Object.keys(amenitiesIcons)
@@ -157,14 +160,18 @@ async function fetchHotelDetails(hotelId) {
                 document.getElementById('viewAllReviews').style.display = 'block';
             }
         }
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     } catch (error) {
         console.error('Error fetching hotel details:', error);
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     }
 }
 
 async function deleteHotel(hotelId) {
     if (hotelId) {
-        fetch('https://localhost:7257/api/DeleteHotel', {
+        fetch('https://huzairhotelbookingapi.azure-api.net/Hotel/api/DeleteHotel', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -193,6 +200,9 @@ async function deleteHotel(hotelId) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    document.getElementById('spinner').style.display = 'block'; 
+    document.getElementById('overlay').style.display = 'block';
 
     if(localStorage.getItem('role')!=="Admin"){
         window.location.href="/Login/Login.html"
@@ -229,6 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (hotelId) {
         fetchHotelDetails(hotelId);
+        document.getElementById('spinner').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
     }
 
     const logoutButton = document.getElementById('logoutbtn');
